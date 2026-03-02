@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Frontend - ECG Digital City</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a2e;
+      color: #fff;
+    }
+    .test-section {
+      background: #16213e;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+    .test-item {
+      padding: 10px;
+      margin: 10px 0;
+      background: #0f3460;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .status {
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-weight: bold;
+    }
+    .status.pass { background: #28a745; }
+    .status.fail { background: #dc3545; }
+    .status.pending { background: #ffc107; color: #000; }
+    button {
+      padding: 10px 20px;
+      background: #0f3460;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #16213e;
+    }
+    #console {
+      background: #000;
+      color: #0f0;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 20px;
+    }
+    .error { color: #f00; }
+    .success { color: #0f0; }
+    .info { color: #0ff; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Test Frontend - ECG Digital City</h1>
+  
+  <div class="test-section">
+    <h2>Controles de Prueba</h2>
+    <button onclick="runAllTests()">▶️ Ejecutar Todos los Tests</button>
+    <button onclick="clearConsole()">🗑️ Limpiar Consola</button>
+    <button onclick="testAuth()">🔐 Test Autenticación</button>
+    <button onclick="testSocket()">🔌 Test Socket.IO</button>
+    <button onclick="testGamification()">🎮 Test Gamificación</button>
+  </div>
+
+  <div class="test-section">
+    <h2>Estado de Componentes</h2>
+    <div id="component-status"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Consola de Pruebas</h2>
+    <div id="console"></div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+    let testResults = [];
+
+    function log(message, type = 'info') {
+      const console = document.getElementById('console');
+      const timestamp = new Date().toLocaleTimeString();
+      const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+      console.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+      console.scrollTop = console.scrollHeight;
+    }
+
+    function clearConsole() {
+      document.getElementById('console').innerHTML = '';
+      testResults = [];
+    }
+
+    function updateComponentStatus() {
+      const status = document.getElementById('component-status');
+      const checks = [
+        { name: 'localStorage disponible', test: () => typeof localStorage !== 'undefined' },
+        { name: 'fetch API disponible', test: () => typeof fetch !== 'undefined' },
+        { name: 'WebSocket disponible', test: () => typeof WebSocket !== 'undefined' },
+        { name: 'Backend accesible', test: async () => {
+          try {
+            const res = await fetch(`${API_URL}/districts`);
+            return res.ok;
+          } catch {
+            return false;
+          }
+        }}
+      ];
+
+      status.innerHTML = '';
+      checks.forEach(async check => {
+        const result = typeof check.test === 'function' ? await check.test() : check.test;
+        const statusClass = result ? 'pass' : 'fail';
+        const statusText = result ? '✅ OK' : '❌ FAIL';
+        status.innerHTML += `
+          <div class="test-item">
+            <span>${check.name}</span>
+            <span class="status ${statusClass}">${statusText}</span>
+          </div>
+        `;
+      });
+    }
+
+    async function testAuth() {
+      log('🔐 Iniciando tests de autenticación...', 'info');
+      
+      // Test 1: Registro
+      try {
+        const randomEmail = `test${Date.now()}@test.com`;
+        const response = await fetch(`${API_URL}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: randomEmail,
+            password: 'test123',
+            username: `testuser${Date.now()}`,
+            fullName: 'Test User'
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          log('✅ Registro exitoso - Token recibido', 'success');
+          localStorage.setItem('test_token', data.token);
+          localStorage.setItem('test_user', JSON.stringify(data.user));
+          return true;
+        } else {
+          log('❌ Error en registro: ' + response.status, 'error');
+          return false;
+        }
+      } catch (error) {
+        log('❌ Error en registro: ' + error.message, 'error');
+        return false;
+      }
+    }
+
+    async function testSocket() {
+      log('🔌 Iniciando tests de Socket.IO...', 'info');
+      
+      const token = localStorage.getItem('test_token');
+      if (!token) {
+        log('❌ No hay token disponible. Ejecuta test de autenticación primero.', 'error');
+        return false;
+      }
+
+      try {
+        // Cargar Socket.IO desde CDN
+        if (typeof io === 'undefined') {
+          log('⏳ Cargando Socket.IO...', 'info');
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.socket.io/4.5.4/socket.io.min.js';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+
+        log('⏳ Conectando a Socket.IO...', 'info');
+        const socket = io('http://localhost:3000', {
+          auth: { token },
+          transports: ['websocket']
+        });
+
+        return new Promise((resolve) => {
+          socket.on('connect', () => {
+            log('✅ Socket.IO conectado exitosamente', 'success');
+            socket.disconnect();
+            resolve(true);
+          });
+
+          socket.on('connect_error', (error) => {
+            log('❌ Error de conexión Socket.IO: ' + error.message, 'error');
+            resolve(false);
+          });
+
+          setTimeout(() => {
+            log('❌ Timeout en conexión Socket.IO', 'error');
+            socket.disconnect();
+            resolve(false);
+          }, 5000);
+        });
+      } catch (error) {
+        log('❌ Error en Socket.IO: ' + error.message, 'error');
+        return false;
+      }
+    }
+
+    async function testGamification() {
+      log('🎮 Iniciando tests de gamificación...', 'info');
+      
+      const user = JSON.parse(localStorage.getItem('test_user') || '{}');
+      if (!user.id) {
+        log('❌ No hay usuario disponible. Ejecuta test de autenticación primero.', 'error');
+        return false;
+      }
+
+      const tests = [
+        {
+          name: 'Obtener progreso',
+          fn: async () => {
+            const res = await fetch(`${API_URL}/gamification/progress/${user.id}`);
+            const data = await res.json();
+            return data.level && data.xp !== undefined;
+          }
+        },
+        {
+          name: 'Login diario',
+          fn: async () => {
+            const res = await fetch(`${API_URL}/gamification/daily-login`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId: user.id })
+            });
+            const data = await res.json();
+            return data.progress && data.xpGained;
+          }
+        },
+        {
+          name: 'Obtener logros',
+          fn: async () => {
+            const res = await fetch(`${API_URL}/achievements`);
+            const data = await res.json();
+            return Array.isArray(data) && data.length > 0;
+          }
+        },
+        {
+          name: 'Obtener misiones',
+          fn: async () => {
+            const res = await fetch(`${API_URL}/missions?isActive=true`);
+            const data = await res.json();
+            return Array.isArray(data) && data.length > 0;
+          }
+        },
+        {
+          name: 'Leaderboard',
+          fn: async () => {
+            const res = await fetch(`${API_URL}/gamification/leaderboard?limit=10`);
+            const data = await res.json();
+            return Array.isArray(data);
+          }
+        }
+      ];
+
+      let passed = 0;
+      for (const test of tests) {
+        try {
+          const result = await test.fn();
+          if (result) {
+            log(`✅ ${test.name} - PASÓ`, 'success');
+            passed++;
+          } else {
+            log(`❌ ${test.name} - FALLÓ`, 'error');
+          }
+        } catch (error) {
+          log(`❌ ${test.name} - ERROR: ${error.message}`, 'error');
+        }
+      }
+
+      log(`📊 Resultado: ${passed}/${tests.length} tests pasaron`, passed === tests.length ? 'success' : 'error');
+      return passed === tests.length;
+    }
+
+    async function runAllTests() {
+      clearConsole();
+      log('🚀 Iniciando suite completa de tests...', 'info');
+      
+      const authResult = await testAuth();
+      if (authResult) {
+        await testSocket();
+        await testGamification();
+      }
+      
+      log('✅ Suite de tests completada', 'success');
+    }
+
+    // Inicializar
+    updateComponentStatus();
+    log('✅ Test frontend cargado. Listo para ejecutar pruebas.', 'success');
+  </script>
+</body>
+</html>

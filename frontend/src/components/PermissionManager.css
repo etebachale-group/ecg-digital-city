@@ -1,0 +1,307 @@
+.permission-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(5px);
+}
+
+.permission-modal {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.permission-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.permission-modal-header h3 {
+  color: #fff;
+  font-size: 24px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.permission-close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.permission-close-btn:hover {
+  background: rgba(255, 59, 48, 0.8);
+  transform: rotate(90deg);
+}
+
+.permission-add-form {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.permission-add-form h4 {
+  color: #fff;
+  margin: 0 0 12px 0;
+  font-size: 16px;
+}
+
+.permission-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.permission-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.permission-form-group label {
+  color: #aaa;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.permission-form-group input,
+.permission-form-group select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.permission-form-group input:focus,
+.permission-form-group select:focus {
+  outline: none;
+  border-color: #4CAF50;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.permission-form-group select option {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.permission-checkboxes {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.permission-checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.permission-checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #4CAF50;
+}
+
+.permission-checkbox-group label {
+  color: #ddd;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.permission-add-btn {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.permission-add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+}
+
+.permission-add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.permission-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.permission-list h4 {
+  color: #fff;
+  margin: 0 0 12px 0;
+  font-size: 16px;
+}
+
+.permission-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.permission-table thead {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.permission-table th {
+  color: #fff;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.permission-table td {
+  color: #ddd;
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.permission-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.permission-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.permission-role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.permission-role-badge.owner {
+  background: linear-gradient(135deg, #FF6B6B, #EE5A6F);
+  color: white;
+}
+
+.permission-role-badge.admin {
+  background: linear-gradient(135deg, #4ECDC4, #44A08D);
+  color: white;
+}
+
+.permission-role-badge.employee {
+  background: linear-gradient(135deg, #95E1D3, #38A3A5);
+  color: white;
+}
+
+.permission-role-badge.visitor {
+  background: linear-gradient(135deg, #AAA, #888);
+  color: white;
+}
+
+.permission-capabilities {
+  display: flex;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.permission-delete-btn {
+  background: rgba(255, 59, 48, 0.2);
+  border: 1px solid rgba(255, 59, 48, 0.5);
+  color: #ff3b30;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.permission-delete-btn:hover {
+  background: rgba(255, 59, 48, 0.8);
+  color: white;
+  border-color: #ff3b30;
+}
+
+.permission-empty {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+}
+
+.permission-empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.permission-empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .permission-modal {
+    width: 95%;
+    padding: 16px;
+  }
+
+  .permission-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .permission-table {
+    font-size: 12px;
+  }
+
+  .permission-table th,
+  .permission-table td {
+    padding: 8px;
+  }
+}

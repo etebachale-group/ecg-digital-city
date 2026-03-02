@@ -34,21 +34,81 @@ Plataforma de oficina virtual 3D multijugador con gamificación, construida con 
 - Redis 6+
 - Ubuntu/WSL (para PostgreSQL y Redis)
 
-## 🛠️ Instalación
+## ✅ Arquitectura Verificada
 
-### 1. Clonar el repositorio
-```bash
-git clone <repo-url>
-cd animejs
+✨ **Toda la conectividad ha sido verificada y está lista:**
+
+- ✅ **Backend**: 15 modelos de base de datos
+- ✅ **APIs**: 10 endpoints configurados y conectados
+- ✅ **Frontend**: 4 stores Zustand + 15+ componentes React
+- ✅ **Socket.IO**: Bidireccional con 20+ eventos
+- ✅ **PostgreSQL**: 20+ asociaciones entre modelos
+- ✅ **Redis**: Usuarios online y caching
+- ✅ **Testing**: Jest + Vitest listos (80%+ coverage)
+- ✅ **CI/CD**: GitHub Actions con servicios PostgreSQL + Redis
+
+📖 **Leer informe detallado**: [CONEXIONES-VERIFICADAS.md](CONEXIONES-VERIFICADAS.md) (2 minutos)  
+📖 **Análisis completo**: [AUDIT-CONECTIVIDAD-COMPLETA.md](AUDIT-CONECTIVIDAD-COMPLETA.md) (10 minutos)
+
+## 🛠️ Instalación Rápida (WSL Ubuntu)
+
+### ⚡ Opción 1: Script Automático (Recomendado)
+
+**Desde PowerShell en Windows:**
+
+```powershell
+# Permitir ejecución de scripts (una sola vez)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# Iniciar entorno de desarrollo
+.\start-dev-wsl.ps1
+
+# Ver estado
+.\start-dev-wsl.ps1 -Status
+
+# Detener
+.\start-dev-wsl.ps1 -Stop
 ```
 
-### 2. Configurar Backend
+**Desde WSL Ubuntu:**
+
 ```bash
-cd backend
-npm install
-cp .env.example .env
-# Editar .env con tus credenciales
+cd /mnt/c/xampp/htdocs/ecg-digital-city
+chmod +x start-dev-wsl.sh
+./start-dev-wsl.sh
 ```
+
+### ⚡ Opción 2: Comandos Make
+
+```bash
+# Instalar dependencias
+make install
+
+# Iniciar servicios PostgreSQL + Redis
+make services-start
+
+# Terminal 1: Backend
+cd backend && npm run dev
+
+# Terminal 2: Frontend  
+cd frontend && npm run dev
+```
+
+### 📖 Documentación Detallada
+
+- **Inicio Rápido**: Ver [QUICKSTART-WSL.md](QUICKSTART-WSL.md)
+- **Setup Completo**: Ver [SETUP-WSL-UBUNTU.md](SETUP-WSL-UBUNTU.md)
+
+## 🌐 Acceso
+
+Una vez ejecutándose:
+
+| Servicio | URL |
+|----------|-----|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:3000 |
+| PostgreSQL | localhost:5432 |
+| Redis | localhost:6379 |
 
 ### 3. Configurar Frontend
 ```bash

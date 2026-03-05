@@ -40,12 +40,7 @@ docs/archive
 tmp
 temp
 
-# Vercel specific (no necesario para Render)
-vercel.json
-.vercel
-.vercelignore
-VERCEL-*.md
-
 # Database
 *.sqlite
 *.db
+

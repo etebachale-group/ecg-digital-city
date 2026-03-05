@@ -8,8 +8,7 @@
     "dev": "nodemon src/server.js",
     "test": "jest",
     "migrate": "node scripts/migrate.js",
-    "seed": "node scripts/seed.js",
-    "vercel-build": "echo 'Backend build complete'"
+    "seed": "node scripts/seed.js"
   },
   "keywords": [
     "virtual-office",

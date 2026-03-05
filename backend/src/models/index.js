@@ -12,6 +12,11 @@ const Mission = require('./Mission');
 const UserMission = require('./UserMission');
 const Event = require('./Event');
 const EventAttendee = require('./EventAttendee');
+const InteractiveObject = require('./InteractiveObject');
+const InteractionNode = require('./InteractionNode');
+const ObjectTrigger = require('./ObjectTrigger');
+const InteractionQueue = require('./InteractionQueue');
+const InteractionLog = require('./InteractionLog');
 
 // Definir asociaciones
 
@@ -85,6 +90,52 @@ EventAttendee.belongsTo(Event, { foreignKey: 'eventId', as: 'event' });
 User.hasMany(EventAttendee, { foreignKey: 'userId', as: 'eventAttendances' });
 Event.hasMany(EventAttendee, { foreignKey: 'eventId', as: 'eventAttendances' });
 
+// Office - InteractiveObject (1:N)
+Office.hasMany(InteractiveObject, { foreignKey: 'officeId', as: 'interactiveObjects' });
+InteractiveObject.belongsTo(Office, { foreignKey: 'officeId', as: 'office' });
+
+// User - InteractiveObject (1:N as creator)
+User.hasMany(InteractiveObject, { foreignKey: 'createdBy', as: 'createdInteractiveObjects' });
+InteractiveObject.belongsTo(User, { foreignKey: 'createdBy', as: 'creator' });
+
+// InteractiveObject - InteractionNode (1:N)
+InteractiveObject.hasMany(InteractionNode, { foreignKey: 'objectId', as: 'nodes' });
+InteractionNode.belongsTo(InteractiveObject, { foreignKey: 'objectId', as: 'object' });
+
+// User - InteractionNode (1:N as occupant)
+User.hasMany(InteractionNode, { foreignKey: 'occupiedBy', as: 'occupiedNodes' });
+InteractionNode.belongsTo(User, { foreignKey: 'occupiedBy', as: 'occupant' });
+
+// InteractiveObject - ObjectTrigger (1:N)
+InteractiveObject.hasMany(ObjectTrigger, { foreignKey: 'objectId', as: 'triggers' });
+ObjectTrigger.belongsTo(InteractiveObject, { foreignKey: 'objectId', as: 'object' });
+
+// InteractiveObject - InteractionQueue (1:N)
+InteractiveObject.hasMany(InteractionQueue, { foreignKey: 'objectId', as: 'queue' });
+InteractionQueue.belongsTo(InteractiveObject, { foreignKey: 'objectId', as: 'object' });
+
+// InteractionNode - InteractionQueue (1:N)
+InteractionNode.hasMany(InteractionQueue, { foreignKey: 'nodeId', as: 'queue' });
+InteractionQueue.belongsTo(InteractionNode, { foreignKey: 'nodeId', as: 'node' });
+
+// User - InteractionQueue (1:N)
+User.hasMany(InteractionQueue, { foreignKey: 'userId', as: 'queueEntries' });
+InteractionQueue.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+// User - InteractionLog (1:N)
+User.hasMany(InteractionLog, { foreignKey: 'userId', as: 'interactionLogs' });
+InteractionLog.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+// InteractiveObject - InteractionLog (1:N)
+InteractiveObject.hasMany(InteractionLog, { foreignKey: 'objectId', as: 'logs' });
+InteractionLog.belongsTo(InteractiveObject, { foreignKey: 'objectId', as: 'object' });
+
+// Avatar - InteractiveObject (N:1 for interactingWith)
+Avatar.belongsTo(InteractiveObject, { foreignKey: 'interactingWith', as: 'currentInteraction' });
+
+// Avatar - InteractionNode (N:1 for sittingAt)
+Avatar.belongsTo(InteractionNode, { foreignKey: 'sittingAt', as: 'currentSeat' });
+
 module.exports = {
   User,
   Avatar,
@@ -99,5 +150,10 @@ module.exports = {
   Mission,
   UserMission,
   Event,
-  EventAttendee
+  EventAttendee,
+  InteractiveObject,
+  InteractionNode,
+  ObjectTrigger,
+  InteractionQueue,
+  InteractionLog
 };

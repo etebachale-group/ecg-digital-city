@@ -23,8 +23,10 @@ async function initializeDatabase() {
   try {
     await sequelize.authenticate();
     logger.info('Conexión a PostgreSQL establecida');
-    await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
-    logger.info('Modelos sincronizados con la base de datos');
+    
+    // Don't auto-sync - we manage schema with migrations and SQL scripts
+    // await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
+    logger.info('Base de datos lista (schema gestionado por migraciones)');
     
     // Seed de distritos iniciales
     const { seedDistricts } = require('../utils/seedDistricts');

@@ -1,32 +1,47 @@
-import { expect, afterEach, vi } from 'vitest'
-import { cleanup } from '@testing-library/react'
-import '@testing-library/jest-dom'
+/**
+ * Jest Setup File
+ * Runs before all tests
+ */
 
-// Cleanup después de cada test
-afterEach(() => {
-  cleanup()
-})
-
-// Mock de Socket.IO
-global.io = vi.fn(() => ({
-  on: vi.fn(),
-  emit: vi.fn(),
-  off: vi.fn(),
-  disconnect: vi.fn(),
-  connect: vi.fn(),
-}))
-
-// Mock de localStorage
+// Mock localStorage
 const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-}
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+  key: jest.fn(),
+  length: 0
+};
+global.localStorage = localStorageMock;
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-})
+// Mock window and document for tests
+global.window = {
+  innerWidth: 1024,
+  innerHeight: 768,
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn()
+};
 
-// Mock de fetch API
-global.fetch = vi.fn()
+global.document = {
+  body: {
+    style: {
+      cursor: 'default'
+    }
+  },
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn()
+};
+
+// Mock requestAnimationFrame
+global.requestAnimationFrame = (callback) => {
+  return setTimeout(callback, 0);
+};
+
+global.cancelAnimationFrame = (id) => {
+  clearTimeout(id);
+};
+
+// Suppress console errors in tests (optional)
+// global.console.error = jest.fn();
+// global.console.warn = jest.fn();
+

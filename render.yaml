@@ -1,0 +1,90 @@
+# Render Blueprint para ECG Digital City
+# Despliega backend y frontend en un solo servicio
+
+services:
+  # Servicio Web Principal (Backend + Frontend)
+  - type: web
+    name: ecg-digital-city
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: |
+      echo "🔨 Instalando dependencias del backend..."
+      cd backend && npm install
+      echo "🔨 Instalando dependencias del frontend..."
+      cd ../frontend && npm install
+      echo "🔨 Construyendo frontend..."
+      npm run build
+      echo "✅ Build completado"
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: HOST
+        value: 0.0.0.0
+      # Database - Configurar en Render Dashboard
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: 5432
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_DIALECT
+        value: postgres
+      # Redis - Configurar en Render Dashboard
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        value: 6379
+      - key: REDIS_PASSWORD
+        sync: false
+      # JWT
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      # CORS - Se actualizará con la URL de Render
+      - key: CORS_ORIGIN
+        sync: false
+      # Rate Limiting
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+      # Logging
+      - key: LOG_LEVEL
+        value: info
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # Base de Datos PostgreSQL
+  - type: pserv
+    name: ecg-digital-city-db
+    env: docker
+    plan: free
+    region: oregon
+    disk:
+      name: ecg-db-data
+      mountPath: /var/lib/postgresql/data
+      sizeGB: 1
+
+  # Redis
+  - type: redis
+    name: ecg-digital-city-redis
+    plan: free
+    region: oregon
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
+
+databases:
+  - name: ecg_digital_city
+    databaseName: ecg_digital_city
+    user: ecg_user
+    plan: free
+    region: oregon

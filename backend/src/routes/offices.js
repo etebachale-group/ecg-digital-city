@@ -280,4 +280,34 @@ router.delete('/:officeId/objects/:objectId', async (req, res) => {
   }
 });
 
+// Get interactive objects for an office
+// This route returns interactive objects (new system)
+// For legacy office objects, use GET /:id/objects
+router.get('/:officeId/interactive-objects', async (req, res) => {
+  try {
+    const { officeId } = req.params;
+    const service = require('../services/InteractiveObjectService');
+    
+    // Try cache first
+    const cacheKey = `office:${officeId}:interactive-objects`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return res.json(JSON.parse(cached));
+    }
+    
+    const objects = await service.getObjectsByOffice(officeId);
+    
+    // Cache for 5 minutes
+    await redis.setex(cacheKey, 300, JSON.stringify(objects));
+    
+    res.json(objects);
+  } catch (error) {
+    logger.error('Error getting interactive objects:', error);
+    res.status(500).json({ 
+      error: 'Error al obtener objetos interactivos',
+      details: error.message 
+    });
+  }
+});
+
 module.exports = router;

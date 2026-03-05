@@ -24,6 +24,7 @@ const gamificationRoutes = require('./routes/gamification');
 const achievementRoutes = require('./routes/achievements');
 const missionRoutes = require('./routes/missions');
 const eventRoutes = require('./routes/events');
+const interactiveObjectRoutes = require('./routes/interactiveObjects');
 
 const app = express();
 const server = http.createServer(app);
@@ -78,6 +79,7 @@ app.use('/api/gamification', gamificationRoutes);
 app.use('/api/achievements', achievementRoutes);
 app.use('/api/missions', missionRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/objects', interactiveObjectRoutes);
 
 // Ruta de health check
 app.get('/health', (req, res) => {
@@ -89,8 +91,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Ruta raíz
-app.get('/', (req, res) => {
+// Ruta raíz de API
+app.get('/api', (req, res) => {
   res.json({
     name: 'ECG Digital City API',
     version: '1.0.0',
@@ -99,8 +101,30 @@ app.get('/', (req, res) => {
   });
 });
 
-// Manejo de errores 404
-app.use((req, res) => {
+// Servir archivos estáticos del frontend (para producción)
+const path = require('path');
+const frontendPath = path.join(__dirname, '../../frontend/dist');
+
+if (process.env.NODE_ENV === 'production') {
+  // Servir archivos estáticos
+  app.use(express.static(frontendPath, {
+    maxAge: '1d',
+    etag: true,
+    lastModified: true
+  }));
+
+  // Manejar rutas de React Router (SPA)
+  app.get('*', (req, res, next) => {
+    // No manejar rutas de API
+    if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
+
+// Manejo de errores 404 para API
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     error: 'Ruta no encontrada',
     path: req.path

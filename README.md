@@ -1,264 +1,273 @@
-# 🏢 ECG Digital City - Oficina Virtual Multijugador
+# 📚 ECG Digital City - Metaverso Corporativo 3D
 
-Plataforma de oficina virtual 3D multijugador con gamificación, construida con React Three Fiber, Node.js, PostgreSQL y Redis.
+**Estado:** 🟢 PHASE 0 Completada - Listo para PHASE 1  
+**Versión:** 1.0.0  
+**Última actualización:** 2 de Marzo 2026
 
-## 🚀 Características
+---
 
-### ✅ Fase 1-4: Sistema Base Completo
-- **Autenticación**: Sistema completo de registro/login con JWT
-- **Mundo 3D**: Oficina virtual navegable con controles WASD
-- **Multijugador**: Sincronización en tiempo real con Socket.IO
-- **Distritos**: Múltiples zonas navegables (Central, Tecnología, Negocios, etc.)
-- **Empresas y Oficinas**: Sistema completo de gestión
-- **Permisos**: Control de acceso granular a oficinas
-- **Editor de Oficinas**: Personalización 3D en tiempo real
-- **Chat**: Sistema de mensajería por proximidad
+## 🎯 Visión General
 
-### ✅ Fase 5: Sistema de Gamificación (95% Completo)
-- **Sistema de XP y Niveles**: Progresión automática
-- **Logros**: 16 achievements desbloqueables
-- **Misiones Diarias**: 10 misiones con seguimiento de progreso
-- **Eventos**: Sistema de eventos comunitarios
-- **Leaderboard**: Ranking global de jugadores
-- **Integraciones Automáticas**:
-  - +5 XP por mensaje de chat (máx 50/día)
-  - +20 XP por visitar distritos (máx 4 únicos)
-  - +100 XP por crear empresa
-  - +50 XP por crear oficina
-  - +10 XP por login diario con racha
+ECG Digital City es un metaverso corporativo 3D donde empresas pueden crear oficinas virtuales, colaborar en tiempo real y gamificar la experiencia laboral. Construido con React Three Fiber, Socket.IO y PostgreSQL.
 
-## 📋 Requisitos
+---
 
-- Node.js 16+
-- PostgreSQL 13+
-- Redis 6+
-- Ubuntu/WSL (para PostgreSQL y Redis)
+## 🚀 Inicio Rápido
 
-## ✅ Arquitectura Verificada
+### Desarrollo Local
 
-✨ **Toda la conectividad ha sido verificada y está lista:**
-
-- ✅ **Backend**: 15 modelos de base de datos
-- ✅ **APIs**: 10 endpoints configurados y conectados
-- ✅ **Frontend**: 4 stores Zustand + 15+ componentes React
-- ✅ **Socket.IO**: Bidireccional con 20+ eventos
-- ✅ **PostgreSQL**: 20+ asociaciones entre modelos
-- ✅ **Redis**: Usuarios online y caching
-- ✅ **Testing**: Jest + Vitest listos (80%+ coverage)
-- ✅ **CI/CD**: GitHub Actions con servicios PostgreSQL + Redis
-
-📖 **Leer informe detallado**: [CONEXIONES-VERIFICADAS.md](CONEXIONES-VERIFICADAS.md) (2 minutos)  
-📖 **Análisis completo**: [AUDIT-CONECTIVIDAD-COMPLETA.md](AUDIT-CONECTIVIDAD-COMPLETA.md) (10 minutos)
-
-## 🛠️ Instalación Rápida (WSL Ubuntu)
-
-### ⚡ Opción 1: Script Automático (Recomendado)
-
-**Desde PowerShell en Windows:**
-
+#### Opción 1: Script Automático (Recomendado)
 ```powershell
-# Permitir ejecución de scripts (una sola vez)
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-
-# Iniciar entorno de desarrollo
+# Desde Windows PowerShell
 .\start-dev-wsl.ps1
-
-# Ver estado
-.\start-dev-wsl.ps1 -Status
-
-# Detener
-.\start-dev-wsl.ps1 -Stop
 ```
 
-**Desde WSL Ubuntu:**
-
-```bash
-cd /mnt/c/xampp/htdocs/ecg-digital-city
-chmod +x start-dev-wsl.sh
-./start-dev-wsl.sh
-```
-
-### ⚡ Opción 2: Comandos Make
-
+#### Opción 2: Manual
 ```bash
 # Instalar dependencias
 make install
 
-# Iniciar servicios PostgreSQL + Redis
+# Iniciar servicios (PostgreSQL + Redis)
 make services-start
 
 # Terminal 1: Backend
 cd backend && npm run dev
 
-# Terminal 2: Frontend  
+# Terminal 2: Frontend
 cd frontend && npm run dev
 ```
 
-### 📖 Documentación Detallada
+#### Acceso
+- **Frontend:** http://localhost:5173
+- **Backend API:** http://localhost:3000
+- **Health Check:** http://localhost:3000/health
 
-- **Inicio Rápido**: Ver [QUICKSTART-WSL.md](QUICKSTART-WSL.md)
-- **Setup Completo**: Ver [SETUP-WSL-UBUNTU.md](SETUP-WSL-UBUNTU.md)
+📖 **Guía completa:** Lee `AHORA-QUE.md` para más detalles
 
-## 🌐 Acceso
+### Despliegue en Producción (Render)
 
-Una vez ejecutándose:
-
-| Servicio | URL |
-|----------|-----|
-| Frontend | http://localhost:5173 |
-| Backend API | http://localhost:3000 |
-| PostgreSQL | localhost:5432 |
-| Redis | localhost:6379 |
-
-### 3. Configurar Frontend
+#### Inicio Rápido (10 minutos)
 ```bash
-cd frontend
-npm install
+# 1. Verificar configuración
+node scripts/verify-deployment.js
+
+# 2. Subir a Git
+git add .
+git commit -m "Configurar para Render"
+git push origin main
+
+# 3. En Render Dashboard
+# - New + > Blueprint
+# - Conectar repositorio
+# - Apply
+# - Esperar 10 minutos
 ```
 
-### 4. Iniciar PostgreSQL y Redis (en WSL/Ubuntu)
-```bash
-sudo service postgresql start
-sudo service redis-server start
-```
+📖 **Guías de despliegue:**
+- `RENDER-QUICKSTART.md` - Inicio rápido (10 minutos)
+- `RENDER-DEPLOYMENT.md` - Guía completa
+- `DEPLOYMENT-RENDER-SUMMARY.md` - Resumen ejecutivo
 
-### 5. Crear base de datos
-```bash
-# En WSL/Ubuntu
-sudo -u postgres psql
-CREATE DATABASE ecg_digital_city;
-\q
-```
+**¿Por qué Render?**
+- ✅ Backend + Frontend en un solo servicio
+- ✅ Socket.IO funciona perfectamente
+- ✅ PostgreSQL y Redis incluidos
+- ✅ SSL/HTTPS automático
+- ✅ Plan gratuito generoso
 
-## 🚀 Ejecución
-
-### Backend (Puerto 3000)
-```bash
-cd backend
-npm run dev
-```
-
-### Frontend (Puerto 5173)
-```bash
-cd frontend
-npm run dev
-```
-
-Acceder a: http://localhost:5173
+---
 
 ## 📁 Estructura del Proyecto
 
 ```
-animejs/
-├── backend/
+ecg-digital-city/
+├── backend/              # Node.js + Express + PostgreSQL
 │   ├── src/
-│   │   ├── config/         # Configuración DB y Redis
-│   │   ├── models/         # Modelos Sequelize
-│   │   ├── routes/         # Endpoints API REST
-│   │   ├── sockets/        # Handlers Socket.IO
-│   │   ├── utils/          # Utilidades y seeds
-│   │   └── server.js       # Servidor principal
-│   ├── logs/               # Logs de aplicación
-│   └── package.json
-├── frontend/
+│   │   ├── config/      # Database, Redis
+│   │   ├── models/      # 15 modelos Sequelize
+│   │   ├── routes/      # 10 endpoints API
+│   │   ├── sockets/     # 4 handlers Socket.IO
+│   │   ├── modules/     # Módulos futuros (Packet System, Game Engine)
+│   │   └── utils/       # Logger, seeders
+│   └── tests/           # Jest tests
+│
+├── frontend/            # React + Three.js + Vite
 │   ├── src/
-│   │   ├── components/     # Componentes React
-│   │   ├── store/          # Estado Zustand
-│   │   └── services/       # Socket.IO client
-│   └── package.json
-└── README.md
+│   │   ├── components/  # 30+ componentes React
+│   │   ├── store/       # 4 Zustand stores
+│   │   ├── modules/     # Módulos futuros
+│   │   └── assets/      # Imágenes, logos
+│   └── tests/           # Vitest tests
+│
+├── docs/                # Documentación organizada
+│   ├── setup/          # Guías de configuración WSL
+│   ├── phases/         # Documentación de fases
+│   ├── technical-specs/ # Especificaciones técnicas
+│   ├── testing/        # Testing y bugs
+│   └── archive/        # Documentación histórica
+│
+├── .github/
+│   └── workflows/      # CI/CD GitHub Actions
+│
+├── Makefile            # Comandos útiles
+├── PROYECTO-STATUS.md  # Estado actual del proyecto
+├── TAREAS-PENDIENTES.md # Lista de tareas
+└── AHORA-QUE.md        # Próximos pasos
 ```
 
-## 🎮 Controles
+---
 
-- **WASD**: Movimiento del avatar
-- **Mouse**: Rotar cámara
-- **E**: Interactuar con objetos/NPCs
-- **T**: Abrir chat
-- **M**: Abrir mapa de distritos
-- **ESC**: Cerrar ventanas
+## 🎮 Funcionalidades Actuales
 
-## 🔧 Tecnologías
+### ✅ Implementado
+- **Autenticación:** Registro, login, JWT, roles
+- **Mundo 3D:** Distritos, oficinas, movimiento WASD, cámara 3D
+- **Gamificación:** XP, niveles, logros, misiones, leaderboard
+- **Social:** Chat en tiempo real, usuarios online
+- **Empresas:** Crear/editar empresas, asignar oficinas
+- **Editor:** Editor de oficinas con objetos 3D
 
-### Frontend
-- React 18
-- React Three Fiber (Three.js)
-- Zustand (Estado global)
-- Socket.IO Client
-- Vite
+### ⏳ En Desarrollo (PHASE 1)
+- Sistema de paquetes binarios
+- Compresión delta
+- Optimización de bandwidth
+
+### 🔮 Futuro (PHASE 2+)
+- Game Engine ECS
+- Voice Chat WebRTC
+- Audio 3D espacial
+- Sistema de economía
+- Mini juegos
+
+---
+
+## 🛠️ Stack Tecnológico
 
 ### Backend
-- Node.js + Express
-- PostgreSQL + Sequelize ORM
-- Redis (Caché y leaderboards)
-- Socket.IO (WebSockets)
-- JWT (Autenticación)
-- Winston (Logging)
+- **Runtime:** Node.js 18+
+- **Framework:** Express.js
+- **Base de Datos:** PostgreSQL 14+
+- **Cache:** Redis 7+
+- **Real-time:** Socket.IO
+- **ORM:** Sequelize
+- **Auth:** JWT + bcryptjs
+- **Testing:** Jest
+- **Logging:** Winston
 
-## 📊 Base de Datos
+### Frontend
+- **Framework:** React 18
+- **Build Tool:** Vite 5
+- **3D Engine:** Three.js 160+
+- **3D React:** React Three Fiber 8+
+- **3D Helpers:** React Three Drei 9+
+- **Real-time:** Socket.IO Client
+- **State:** Zustand
+- **Testing:** Vitest
 
-### Modelos Principales
-- **User**: Usuarios del sistema
-- **Avatar**: Apariencia de usuarios
-- **Company**: Empresas
-- **Office**: Oficinas virtuales
-- **District**: Zonas del mundo
-- **OfficeObject**: Objetos 3D en oficinas
-- **Permission**: Control de acceso
-- **Achievement**: Logros
-- **Mission**: Misiones
-- **Event**: Eventos comunitarios
-- **UserProgress**: Progreso de gamificación
+### DevOps
+- **OS:** WSL 2 Ubuntu (Windows)
+- **CI/CD:** GitHub Actions
+- **Linting:** ESLint + Prettier
+- **Version Control:** Git + GitHub
 
-## 🎯 Próximas Funcionalidades
+---
 
-- [ ] Desbloqueo automático de achievements
-- [ ] Sistema de notificaciones push
-- [ ] Integración con calendario
-- [ ] Videollamadas integradas
-- [ ] Marketplace de objetos 3D
-- [ ] Sistema de clanes/equipos
+## 📚 Documentación
 
-## 📝 Documentación Adicional
+### Inicio Rápido
+- `AHORA-QUE.md` - Próximos pasos y cómo empezar
+- `docs/setup/QUICKSTART-WSL.md` - Inicio en 5 minutos
+- `docs/setup/SETUP-WSL-UBUNTU.md` - Configuración completa
 
-- `DOCUMENTACION.md`: Documentación técnica completa
-- `GUIA-USUARIO.md`: Guía de usuario
-- `PROJECT-STRUCTURE.md`: Estructura detallada del proyecto
-- `ROADMAP-ECG-DIGITAL-CITY.md`: Roadmap de desarrollo
-- `FASE5-GAMIFICACION-EVENTOS.md`: Especificación Fase 5
-- `FASE5-COMPLETADO.md`: Estado actual Fase 5
+### Estado del Proyecto
+- `PROYECTO-STATUS.md` - Estado actual detallado
+- `TAREAS-PENDIENTES.md` - Lista de tareas pendientes
+- `docs/phases/PHASE-0-COMPLETADA.md` - Resumen Phase 0
 
-## 🐛 Solución de Problemas
+### Técnica
+- `docs/technical-specs/PACKET-SYSTEM-SPEC.md` - Sistema de paquetes (1800+ líneas)
+- `docs/technical-specs/GAME-ENGINE-SPEC.md` - Motor de juego (2000+ líneas)
+- `WORKFLOW-IMPLEMENTACION-COMPLETA.md` - Roadmap 12 fases
 
-### Backend no inicia
-```bash
-# Verificar PostgreSQL
-sudo service postgresql status
-# Verificar Redis
-sudo service redis-server status
+### Testing
+- `docs/testing/TESTING-ERRORS.md` - Bugs y testing
+
+### Contribución
+- `CONTRIBUTING.md` - Guía de contribución
+- `.github/PULL_REQUEST_TEMPLATE.md` - Template de PR
+
+---
+
+## 🎯 Roadmap
+
+```
+✅ PHASE 0: Infraestructura (Q1 2026) - COMPLETADA
+⏳ PHASE 1: Packet System (Q1 2026) - EN PREPARACIÓN
+🔮 PHASE 2: Game Engine Prototipo (Q2 2026)
+🔮 PHASE 3: Engine Completo (Q3 2026)
+🔮 PHASE 4: Voice Chat (Q4 2026)
+🔮 PHASE 5: Audio 3D (Q1 2027)
+🔮 PHASE 6: Testing & Feedback (Q2 2027)
+🔮 PHASE 7: Optimización (Q3 2027)
+🔮 PHASE 8: Expansión Features (Q4 2027)
+🔮 PHASE 9: Beta Launch (Q1 2028)
+🔮 PHASE 10: Adquisición (Q2 2028)
+🔮 PHASE 11: Release v1.0 (Q3 2028)
+🔮 PHASE 12: Soporte Post-Release (Q4 2028+)
 ```
 
-### Frontend en blanco
-- Verificar que el backend esté corriendo
-- Revisar consola del navegador (F12)
-- Limpiar localStorage y recargar
+**Duración Total:** 2-2.5 años
 
-### Sesión se cierra al refrescar
-- Verificar que zustand persist esté configurado
-- Revisar que el token se guarde en localStorage
+---
 
-## 👥 Contribuir
+## 🤝 Contribuir
 
-1. Fork el proyecto
-2. Crear rama feature (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'Add AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir Pull Request
+Lee `CONTRIBUTING.md` para conocer:
+- Cómo configurar el entorno
+- Estándares de código
+- Proceso de Git Flow
+- Cómo hacer Pull Requests
+- Convenciones de commits
+
+---
+
+## 📊 Estado Actual
+
+- **Líneas de código:** ~15,000
+- **Componentes React:** 30+
+- **Modelos de BD:** 15
+- **Endpoints API:** 10
+- **Paquetes npm:** 755
+- **Documentación:** 10,000+ líneas
+- **Tests:** Por implementar
+- **Cobertura:** 0% (objetivo: 90%+)
+
+---
+
+## 🐛 Bugs Conocidos
+
+Todos los bugs críticos han sido corregidos. Ver `docs/testing/TESTING-ERRORS.md` para detalles.
+
+---
+
+## 📞 Soporte
+
+- **Documentación:** Revisa la carpeta `docs/`
+- **Issues:** Reporta bugs en GitHub Issues
+- **Pull Requests:** Usa el template de PR
+
+---
 
 ## 📄 Licencia
 
-Este proyecto es privado y confidencial.
+Por definir
 
-## 📧 Contacto
+---
 
-Para soporte o consultas, contactar al equipo de desarrollo.
+## 👥 Equipo
+
+Por definir
+
+---
+
+**¿Listo para empezar?** Lee `AHORA-QUE.md` y ejecuta `.\start-dev-wsl.ps1`

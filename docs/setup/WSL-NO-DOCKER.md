@@ -264,14 +264,11 @@ make docker-down docker-clean
 
 ### ¿Puedo seguir usando Docker?
 
-Sí, pero no está documentado en este proyecto. Los archivos Docker siguen presentes pero no son recomendados.
+No, los archivos Docker han sido eliminados del proyecto. El proyecto ahora usa WSL Ubuntu exclusivamente.
 
 ### ¿Cómo cambio entre desarrolladores?
 
-Algunos pueden preferir Docker, otros WSL. La estructura es flexible:
-- Los archivos app son los mismos
-- Solo cambian los scripts `start-dev-*`
-- Las variables `.env` son idénticas
+Todos los desarrolladores deben usar WSL Ubuntu para mantener consistencia en el entorno de desarrollo.
 
 ### ¿WSL funciona en Windows 10?
 
@@ -283,12 +280,7 @@ Funciona perfecto con WSL. Instala la extensión "Remote - WSL" para mejor integ
 
 ### ¿Y si quiero volver a Docker?
 
-```bash
-# Los Dockerfiles siguen aquí
-docker-compose -f docker-compose.dev.yml up -d
-
-# Pero no son la configuración principal
-```
+Los archivos Docker han sido eliminados. Si necesitas Docker, deberás crear tu propia configuración desde cero.
 
 ## Documentación Relacionada
 

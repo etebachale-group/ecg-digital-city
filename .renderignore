@@ -1,0 +1,51 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Environment files (usar Render Dashboard)
+.env
+.env.local
+.env.*.local
+
+# Testing
+coverage
+*.test.js
+*.spec.js
+__tests__
+tests
+
+# Logs
+logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git
+.git
+
+# Documentation (opcional)
+docs/archive
+*.md
+
+# Temporary files
+tmp
+temp
+
+# Vercel specific (no necesario para Render)
+vercel.json
+.vercel
+.vercelignore
+VERCEL-*.md
+
+# Database
+*.sqlite
+*.db

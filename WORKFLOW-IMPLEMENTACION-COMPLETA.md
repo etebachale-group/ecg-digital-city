@@ -76,7 +76,6 @@ Preparar la infraestructura, documentación y arquitectura para las siguientes f
 
 #### 0.3 - Configuración DevOps
 - [ ] GitHub workflows CI/CD
-- [ ] Docker setup para desarrollo
 - [ ] Configuración de testing
 - [ ] Git branching strategy (Git Flow)
 
@@ -684,7 +683,7 @@ main (producción)
 
 ### DevOps
 ```
-Docker, Docker Compose, Kubernetes, Jenkins/GitHub Actions, ELK Stack (logging)
+Kubernetes, Jenkins/GitHub Actions, ELK Stack (logging)
 ```
 
 ---

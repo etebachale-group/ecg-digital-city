@@ -51,7 +51,8 @@ jobs:
         run: cd backend && npm install --legacy-peer-deps
       
       - name: Run ESLint
-        run: cd backend && npm run lint || true
+        run: cd backend && npm run lint
+        continue-on-error: true
       
       - name: Run tests
         run: cd backend && npm test -- --coverage
@@ -86,7 +87,8 @@ jobs:
         run: cd frontend && npm install --legacy-peer-deps
       
       - name: Run ESLint
-        run: cd frontend && npm run lint || true
+        run: cd frontend && npm run lint
+        continue-on-error: true
       
       - name: Run tests
         run: cd frontend && npm test -- --coverage
@@ -116,10 +118,12 @@ jobs:
           cache: 'npm'
       
       - name: Check backend formatting
-        run: cd backend && npx prettier --check src || echo "Warning: Format issues found"
+        run: cd backend && npx prettier --check src
+        continue-on-error: true
       
       - name: Check frontend formatting
-        run: cd frontend && npx prettier --check src || echo "Warning: Format issues found"
+        run: cd frontend && npx prettier --check src
+        continue-on-error: true
 
   security:
     name: Security Scan
@@ -131,10 +135,11 @@ jobs:
       
       - name: Run Snyk security scan
         uses: snyk/actions/node@master
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high || true
+          args: --severity-threshold=high
 
   summary:
     name: CI Summary
@@ -146,11 +151,11 @@ jobs:
       - name: Check job statuses
         run: |
           if [ "${{ needs.backend-test.result }}" != "success" ]; then
-            echo "❌ Backend tests failed"
+            echo "Backend tests failed"
             exit 1
           fi
           if [ "${{ needs.frontend-test.result }}" != "success" ]; then
-            echo "❌ Frontend tests failed"
+            echo "Frontend tests failed"
             exit 1
           fi
-          echo "✅ All checks passed!"
+          echo "All checks passed"

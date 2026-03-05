@@ -51,25 +51,12 @@ DB_PASSWORD = KeIeMc0m9GFiTIcDXc9xOIjvGO4z1Gt8
 DB_DIALECT = postgres
 ```
 
-### 3.3 Agregar Variables de Redis
-1. Ve al Dashboard principal
-2. Haz clic en **ecg-digital-city-redis**
-3. Copia el **Internal Redis URL** (algo como: redis://red-xxxxx:6379)
-4. Vuelve al Web Service → Environment
-5. Agrega:
-
-```
-REDIS_HOST = red-xxxxx.oregon-redis.render.com
-REDIS_PORT = 6379
-REDIS_PASSWORD = <copia el password del Redis URL>
-```
-
-### 3.4 Agregar CORS_ORIGIN
+### 3.3 Agregar CORS_ORIGIN
 ```
 CORS_ORIGIN = https://ecg-digital-city.onrender.com
 ```
 
-### 3.5 Guardar
+### 3.4 Guardar
 Haz clic en **Save Changes**
 
 El servicio se reiniciará automáticamente (espera 2-3 minutos).
@@ -146,9 +133,10 @@ En el Web Service → **Shell** → **Launch Shell**
 
 ## ⚠️ Notas Importantes
 
-1. **Primera carga lenta**: La primera vez que alguien accede, puede tardar 30-60 segundos (plan gratuito)
-2. **Inactividad**: Después de 15 minutos sin uso, el servicio se duerme. La próxima visita lo despierta.
-3. **Base de datos**: Los datos persisten, no se pierden cuando el servicio se duerme.
+1. **Redis Opcional**: La app funciona sin Redis usando memoria local. Si quieres Redis, créalo manualmente en Render (New + → Redis) y agrega las variables REDIS_HOST, REDIS_PORT, REDIS_PASSWORD.
+2. **Primera carga lenta**: La primera vez que alguien accede, puede tardar 30-60 segundos (plan gratuito)
+3. **Inactividad**: Después de 15 minutos sin uso, el servicio se duerme. La próxima visita lo despierta.
+4. **Base de datos**: Los datos persisten, no se pierden cuando el servicio se duerme.
 
 ---
 

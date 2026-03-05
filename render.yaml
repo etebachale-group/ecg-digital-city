@@ -1,22 +1,13 @@
-# Render Blueprint para ECG Digital City
-# Despliega backend y frontend en un solo servicio
-
 services:
-  # Servicio Web Principal (Backend + Frontend)
   - type: web
     name: ecg-digital-city
-    env: node
+    runtime: node
     region: oregon
     plan: free
-    buildCommand: |
-      echo "🔨 Instalando dependencias del backend..."
-      cd backend && npm install
-      echo "🔨 Instalando dependencias del frontend..."
-      cd ../frontend && npm install
-      echo "🔨 Construyendo frontend..."
-      npm run build
-      echo "✅ Build completado"
+    buildCommand: cd backend && npm install && cd ../frontend && npm install && npm run build
     startCommand: cd backend && npm start
+    healthCheckPath: /health
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
@@ -24,7 +15,6 @@ services:
         value: 3000
       - key: HOST
         value: 0.0.0.0
-      # Database - Configurar en Render Dashboard
       - key: DB_HOST
         sync: false
       - key: DB_PORT
@@ -37,36 +27,28 @@ services:
         sync: false
       - key: DB_DIALECT
         value: postgres
-      # Redis - Configurar en Render Dashboard
       - key: REDIS_HOST
         sync: false
       - key: REDIS_PORT
         value: 6379
       - key: REDIS_PASSWORD
         sync: false
-      # JWT
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 7d
-      # CORS - Se actualizará con la URL de Render
       - key: CORS_ORIGIN
         sync: false
-      # Rate Limiting
       - key: RATE_LIMIT_WINDOW_MS
         value: 900000
       - key: RATE_LIMIT_MAX_REQUESTS
         value: 100
-      # Logging
       - key: LOG_LEVEL
         value: info
-    healthCheckPath: /health
-    autoDeploy: true
 
-  # Base de Datos PostgreSQL
   - type: pserv
     name: ecg-digital-city-db
-    env: docker
+    runtime: docker
     plan: free
     region: oregon
     disk:
@@ -74,7 +56,6 @@ services:
       mountPath: /var/lib/postgresql/data
       sizeGB: 1
 
-  # Redis
   - type: redis
     name: ecg-digital-city-redis
     plan: free

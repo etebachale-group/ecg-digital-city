@@ -146,21 +146,32 @@ setupSocketHandlers(io);
 // Inicializar servicios
 async function startServer() {
   try {
+    logger.info('🔄 Iniciando servidor...');
+    logger.info(`📝 Variables de entorno: NODE_ENV=${process.env.NODE_ENV}, DB_HOST=${process.env.DB_HOST}, DB_NAME=${process.env.DB_NAME}`);
+    
     // Conectar a la base de datos
+    logger.info('🔄 Conectando a la base de datos...');
     await initializeDatabase();
     logger.info('✅ Base de datos conectada');
     
     // Seed de gamificación
+    logger.info('🔄 Ejecutando seed de gamificación...');
     const { seedGamification } = require('./utils/seedGamification');
     await seedGamification();
+    logger.info('✅ Seed de gamificación completado');
 
-    // Conectar a Redis
-    await initializeRedis();
-    logger.info('✅ Redis conectado');
+    // Conectar a Redis (opcional)
+    logger.info('🔄 Conectando a Redis...');
+    try {
+      await initializeRedis();
+      logger.info('✅ Redis conectado');
+    } catch (redisError) {
+      logger.warn('⚠️  Redis no disponible, continuando sin cache:', redisError.message);
+    }
 
     // Iniciar servidor
     const PORT = process.env.PORT || 3000;
-    const HOST = process.env.HOST || 'localhost';
+    const HOST = process.env.HOST || '0.0.0.0';
 
     server.listen(PORT, HOST, () => {
       logger.info(`🚀 Servidor corriendo en http://${HOST}:${PORT}`);
@@ -170,6 +181,7 @@ async function startServer() {
 
   } catch (error) {
     logger.error('❌ Error al iniciar el servidor:', error);
+    logger.error('Stack trace:', error.stack);
     process.exit(1);
   }
 }

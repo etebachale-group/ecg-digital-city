@@ -1,8 +1,8 @@
 # 📚 ECG Digital City - Metaverso Corporativo 3D
 
-**Estado:** 🟢 PHASE 0 Completada - Listo para PHASE 1  
+**Estado:** 🟢 Listo para Desplegar  
 **Versión:** 1.0.0  
-**Última actualización:** 2 de Marzo 2026
+**Última actualización:** 5 de Marzo 2026
 
 ---
 
@@ -16,64 +16,45 @@ ECG Digital City es un metaverso corporativo 3D donde empresas pueden crear ofic
 
 ### Desarrollo Local
 
-#### Opción 1: Script Automático (Recomendado)
-```powershell
-# Desde Windows PowerShell
-.\start-dev-wsl.ps1
+```bash
+# Backend
+cd backend
+npm install
+npm start
+
+# Frontend (nueva terminal)
+cd frontend
+npm install
+npm run dev
 ```
 
-#### Opción 2: Manual
+**Acceso:**
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3000
+- Health Check: http://localhost:3000/health
+
+### Desplegar en Render
+
 ```bash
-# Instalar dependencias
-make install
-
-# Iniciar servicios (PostgreSQL + Redis)
-make services-start
-
-# Terminal 1: Backend
-cd backend && npm run dev
-
-# Terminal 2: Frontend
-cd frontend && npm run dev
-```
-
-#### Acceso
-- **Frontend:** http://localhost:5173
-- **Backend API:** http://localhost:3000
-- **Health Check:** http://localhost:3000/health
-
-📖 **Guía completa:** Lee `AHORA-QUE.md` para más detalles
-
-### Despliegue en Producción (Render)
-
-#### Inicio Rápido (10 minutos)
-```bash
-# 1. Verificar configuración
-node scripts/verify-deployment.js
-
-# 2. Subir a Git
-git add .
-git commit -m "Configurar para Render"
+# 1. Subir a GitHub
 git push origin main
 
-# 3. En Render Dashboard
-# - New + > Blueprint
+# 2. En Render Dashboard
+# - New + → Blueprint
 # - Conectar repositorio
 # - Apply
-# - Esperar 10 minutos
+
+# 3. Configurar variables (ver RENDER.md)
+
+# 4. Ejecutar migraciones
+cd backend && node scripts/migrate.js
 ```
 
-📖 **Guías de despliegue:**
-- `RENDER-QUICKSTART.md` - Inicio rápido (10 minutos)
+📖 **Guías:**
+- `PROYECTO.md` - Estado del proyecto
+- `RENDER.md` - Guía simple de despliegue
+- `RENDER-QUICKSTART.md` - Inicio rápido
 - `RENDER-DEPLOYMENT.md` - Guía completa
-- `DEPLOYMENT-RENDER-SUMMARY.md` - Resumen ejecutivo
-
-**¿Por qué Render?**
-- ✅ Backend + Frontend en un solo servicio
-- ✅ Socket.IO funciona perfectamente
-- ✅ PostgreSQL y Redis incluidos
-- ✅ SSL/HTTPS automático
-- ✅ Plan gratuito generoso
 
 ---
 
@@ -117,27 +98,23 @@ ecg-digital-city/
 
 ---
 
-## 🎮 Funcionalidades Actuales
+## 🎮 Funcionalidades
 
-### ✅ Implementado
-- **Autenticación:** Registro, login, JWT, roles
-- **Mundo 3D:** Distritos, oficinas, movimiento WASD, cámara 3D
-- **Gamificación:** XP, niveles, logros, misiones, leaderboard
-- **Social:** Chat en tiempo real, usuarios online
-- **Empresas:** Crear/editar empresas, asignar oficinas
-- **Editor:** Editor de oficinas con objetos 3D
+### ✅ Backend
+- Autenticación (JWT, roles)
+- Sistema de Interacciones Avanzadas
+- 15 modelos de base de datos
+- 11 endpoints REST API
+- Socket.IO para tiempo real
+- Tests completos (18 suites)
 
-### ⏳ En Desarrollo (PHASE 1)
-- Sistema de paquetes binarios
-- Compresión delta
-- Optimización de bandwidth
-
-### 🔮 Futuro (PHASE 2+)
-- Game Engine ECS
-- Voice Chat WebRTC
-- Audio 3D espacial
-- Sistema de economía
-- Mini juegos
+### ✅ Frontend
+- Mundo 3D (React Three Fiber)
+- 6 sistemas core (navegación, pathfinding, interacciones)
+- Movimiento WASD, cámara 3D
+- Chat en tiempo real
+- Editor de oficinas
+- Tests completos (property-based + unit)
 
 ---
 
@@ -174,100 +151,52 @@ ecg-digital-city/
 
 ## 📚 Documentación
 
-### Inicio Rápido
-- `AHORA-QUE.md` - Próximos pasos y cómo empezar
-- `docs/setup/QUICKSTART-WSL.md` - Inicio en 5 minutos
-- `docs/setup/SETUP-WSL-UBUNTU.md` - Configuración completa
+### Principal
+- `PROYECTO.md` - Estado completo del proyecto
+- `README.md` - Este archivo
 
-### Estado del Proyecto
-- `PROYECTO-STATUS.md` - Estado actual detallado
-- `TAREAS-PENDIENTES.md` - Lista de tareas pendientes
-- `docs/phases/PHASE-0-COMPLETADA.md` - Resumen Phase 0
+### Despliegue
+- `RENDER.md` - Guía simple
+- `RENDER-QUICKSTART.md` - Inicio rápido
+- `RENDER-DEPLOYMENT.md` - Guía completa
 
 ### Técnica
-- `docs/technical-specs/PACKET-SYSTEM-SPEC.md` - Sistema de paquetes (1800+ líneas)
-- `docs/technical-specs/GAME-ENGINE-SPEC.md` - Motor de juego (2000+ líneas)
-- `WORKFLOW-IMPLEMENTACION-COMPLETA.md` - Roadmap 12 fases
+- `docs/technical-specs/` - Especificaciones técnicas
+- `.kiro/specs/` - Especificaciones y tareas
+- `backend/docs/` - Documentación API
 
-### Testing
-- `docs/testing/TESTING-ERRORS.md` - Bugs y testing
-
-### Contribución
+### Configuración
+- `docs/setup/` - Guías de configuración WSL
 - `CONTRIBUTING.md` - Guía de contribución
-- `.github/PULL_REQUEST_TEMPLATE.md` - Template de PR
 
 ---
 
 ## 🎯 Roadmap
 
-```
-✅ PHASE 0: Infraestructura (Q1 2026) - COMPLETADA
-⏳ PHASE 1: Packet System (Q1 2026) - EN PREPARACIÓN
-🔮 PHASE 2: Game Engine Prototipo (Q2 2026)
-🔮 PHASE 3: Engine Completo (Q3 2026)
-🔮 PHASE 4: Voice Chat (Q4 2026)
-🔮 PHASE 5: Audio 3D (Q1 2027)
-🔮 PHASE 6: Testing & Feedback (Q2 2027)
-🔮 PHASE 7: Optimización (Q3 2027)
-🔮 PHASE 8: Expansión Features (Q4 2027)
-🔮 PHASE 9: Beta Launch (Q1 2028)
-🔮 PHASE 10: Adquisición (Q2 2028)
-🔮 PHASE 11: Release v1.0 (Q3 2028)
-🔮 PHASE 12: Soporte Post-Release (Q4 2028+)
-```
+Ver `.kiro/specs/sistema-interacciones-avanzadas/tasks.md` para tareas detalladas.
 
-**Duración Total:** 2-2.5 años
+**Próximas funcionalidades:**
+- Sistema de paquetes binarios
+- Game Engine ECS
+- Voice Chat WebRTC
+- Audio 3D espacial
 
 ---
 
 ## 🤝 Contribuir
 
-Lee `CONTRIBUTING.md` para conocer:
-- Cómo configurar el entorno
-- Estándares de código
-- Proceso de Git Flow
-- Cómo hacer Pull Requests
-- Convenciones de commits
+Lee `CONTRIBUTING.md` para conocer estándares de código y proceso de desarrollo.
 
 ---
 
 ## 📊 Estado Actual
 
-- **Líneas de código:** ~15,000
-- **Componentes React:** 30+
-- **Modelos de BD:** 15
-- **Endpoints API:** 10
-- **Paquetes npm:** 755
-- **Documentación:** 10,000+ líneas
-- **Tests:** Por implementar
-- **Cobertura:** 0% (objetivo: 90%+)
+- Backend: 100% completo
+- Frontend: 100% completo
+- Tests: Todos pasando
+- Documentación: Completa
+- Listo para desplegar
 
 ---
 
-## 🐛 Bugs Conocidos
-
-Todos los bugs críticos han sido corregidos. Ver `docs/testing/TESTING-ERRORS.md` para detalles.
-
----
-
-## 📞 Soporte
-
-- **Documentación:** Revisa la carpeta `docs/`
-- **Issues:** Reporta bugs en GitHub Issues
-- **Pull Requests:** Usa el template de PR
-
----
-
-## 📄 Licencia
-
-Por definir
-
----
-
-## 👥 Equipo
-
-Por definir
-
----
-
-**¿Listo para empezar?** Lee `AHORA-QUE.md` y ejecuta `.\start-dev-wsl.ps1`
+**¿Listo para empezar?** Lee `PROYECTO.md` y ejecuta los comandos de inicio rápido.

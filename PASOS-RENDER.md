@@ -70,17 +70,22 @@ El servicio se reiniciará automáticamente (espera 2-3 minutos).
 2. Ve a la pestaña **Shell** (arriba)
 3. Haz clic en **Launch Shell**
 
-### 4.2 Ejecutar Migraciones
+### 4.2 Ejecutar Setup Completo
 En la terminal que se abre, escribe:
 
 ```bash
 cd backend
-node scripts/migrate.js
+node scripts/setup-database.js
 ```
+
+Esto ejecutará:
+- ✅ Migraciones de Sequelize
+- ✅ SQL del Sistema de Interacciones
+- ✅ Verificación de tablas
 
 Deberías ver:
 ```
-✅ Migraciones ejecutadas correctamente
+=== ✅ CONFIGURACIÓN COMPLETADA ===
 ```
 
 ---

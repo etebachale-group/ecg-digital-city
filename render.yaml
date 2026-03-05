@@ -51,10 +51,6 @@ services:
     runtime: docker
     plan: free
     region: oregon
-    disk:
-      name: ecg-db-data
-      mountPath: /var/lib/postgresql/data
-      sizeGB: 1
 
   - type: redis
     name: ecg-digital-city-redis

@@ -159,24 +159,35 @@ async function startServer() {
       logger.info('🔄 Ejecutando migraciones automáticas...');
       try {
         const { runMigrations } = require('../scripts/migrate');
-        await runMigrations();
+        const result = await runMigrations();
         logger.info('✅ Migraciones completadas');
         
-        // Seed de distritos DESPUÉS de las migraciones
-        logger.info('🔄 Ejecutando seed de distritos...');
-        const { seedDistricts } = require('./utils/seedDistricts');
-        await seedDistricts();
-        logger.info('✅ Seed de distritos completado');
+        // Seed de distritos DESPUÉS de las migraciones (solo si fueron exitosas)
+        if (result.success) {
+          logger.info('🔄 Ejecutando seed de distritos...');
+          try {
+            const { seedDistricts } = require('./utils/seedDistricts');
+            await seedDistricts();
+            logger.info('✅ Seed de distritos completado');
+          } catch (seedError) {
+            logger.warn('⚠️  Error en seed de distritos:', seedError.message);
+          }
+        }
       } catch (migrationError) {
-        logger.warn('⚠️  Error en migraciones:', migrationError.message);
+        logger.error('❌ Error en migraciones:', migrationError.message);
+        throw migrationError; // Detener si las migraciones fallan
       }
     }
     
-    // Seed de gamificación
+    // Seed de gamificación (solo si llegamos aquí)
     logger.info('🔄 Ejecutando seed de gamificación...');
-    const { seedGamification } = require('./utils/seedGamification');
-    await seedGamification();
-    logger.info('✅ Seed de gamificación completado');
+    try {
+      const { seedGamification } = require('./utils/seedGamification');
+      await seedGamification();
+      logger.info('✅ Seed de gamificación completado');
+    } catch (seedError) {
+      logger.warn('⚠️  Error en seed de gamificación:', seedError.message);
+    }
 
     // Conectar a Redis (opcional)
     logger.info('🔄 Conectando a Redis...');

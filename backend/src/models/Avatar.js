@@ -40,34 +40,6 @@ const Avatar = sequelize.define('Avatar', {
   accessories: {
     type: DataTypes.JSONB,
     defaultValue: {}
-  },
-  currentState: {
-    type: DataTypes.STRING(50),
-    defaultValue: 'idle',
-    field: 'current_state',
-    validate: {
-      isIn: [['idle', 'walking', 'running', 'sitting', 'interacting', 'dancing']]
-    }
-  },
-  previousState: {
-    type: DataTypes.STRING(50),
-    allowNull: true,
-    field: 'previous_state'
-  },
-  stateChangedAt: {
-    type: DataTypes.DATE,
-    allowNull: true,
-    field: 'state_changed_at'
-  },
-  interactingWith: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    field: 'interacting_with'
-  },
-  sittingAt: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    field: 'sitting_at'
   }
 }, {
   tableName: 'avatars',

@@ -155,7 +155,7 @@ async function startServer() {
     logger.info('✅ Base de datos conectada');
     
     // Ejecutar migraciones automáticamente en producción
-    if (process.env.NODE_ENV === 'production' && process.env.AUTO_MIGRATE !== 'false') {
+    if (process.env.NODE_ENV === 'production' && process.env.AUTO_MIGRATE !== 'false' && false) { // DESHABILITADO TEMPORALMENTE
       logger.info('🔄 Ejecutando migraciones automáticas...');
       try {
         const { runMigrations } = require('../scripts/migrate');

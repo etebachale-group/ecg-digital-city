@@ -15,11 +15,6 @@ const Achievement = sequelize.define('Achievement', {
     type: DataTypes.TEXT,
     allowNull: true
   },
-  category: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
-    defaultValue: 'general'
-  },
   icon: {
     type: DataTypes.STRING(50),
     allowNull: false,
@@ -27,15 +22,23 @@ const Achievement = sequelize.define('Achievement', {
   },
   xpReward: {
     type: DataTypes.INTEGER,
-    defaultValue: 50
+    defaultValue: 50,
+    field: 'xp_reward'
   },
-  requirementType: {
+  conditionType: {
     type: DataTypes.STRING(50),
-    allowNull: false
+    allowNull: false,
+    field: 'condition_type'
   },
-  requirementValue: {
+  conditionValue: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    field: 'condition_value'
+  },
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+    field: 'is_active'
   }
 }, {
   tableName: 'achievements',

@@ -20,7 +20,9 @@ const sequelize = new Sequelize(
       ssl: process.env.NODE_ENV === 'production' ? {
         require: true,
         rejectUnauthorized: false
-      } : false
+      } : false,
+      // Forzar IPv4 para Supabase
+      family: 4
     }
   }
 );

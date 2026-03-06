@@ -32,6 +32,21 @@ export const useGameStore = create((set, get) => ({
   // Fase 3: Toasts/Notificaciones
   toasts: [],
   
+  // Pathfinding
+  currentPath: null,
+  isFollowingPath: false,
+  
+  // Interactive Objects
+  interactiveObjects: new Map(),
+  
+  // Avatar States
+  avatarStates: new Map(), // userId -> state
+  
+  // Interaction
+  highlightedObject: null,
+  nearbyObjects: [],
+  interactionQueue: new Map(), // objectId -> queue
+  
   // Acciones del jugador
   updatePlayerPosition: (position, rotation) => {
     set((state) => ({
@@ -153,5 +168,94 @@ export const useGameStore = create((set, get) => ({
   
   showToast: (message, type = 'info', title = null) => {
     get().addToast({ message, type, title })
+  },
+  
+  // Pathfinding actions
+  setCurrentPath: (path) => {
+    set({ currentPath: path })
+  },
+  
+  setIsFollowingPath: (isFollowing) => {
+    set({ isFollowingPath: isFollowing })
+  },
+  
+  // Interactive Objects actions
+  addInteractiveObject: (object) => {
+    set((state) => {
+      const newObjects = new Map(state.interactiveObjects)
+      newObjects.set(object.id, object)
+      return { interactiveObjects: newObjects }
+    })
+  },
+  
+  updateObjectState: (objectId, newState) => {
+    set((state) => {
+      const newObjects = new Map(state.interactiveObjects)
+      const object = newObjects.get(objectId)
+      if (object) {
+        newObjects.set(objectId, { ...object, state: newState })
+      }
+      return { interactiveObjects: newObjects }
+    })
+  },
+  
+  removeInteractiveObject: (objectId) => {
+    set((state) => {
+      const newObjects = new Map(state.interactiveObjects)
+      newObjects.delete(objectId)
+      return { interactiveObjects: newObjects }
+    })
+  },
+  
+  // Avatar States actions
+  setAvatarState: (userId, state) => {
+    set((prevState) => {
+      const newStates = new Map(prevState.avatarStates)
+      newStates.set(userId, state)
+      return { avatarStates: newStates }
+    })
+  },
+  
+  removeAvatarState: (userId) => {
+    set((state) => {
+      const newStates = new Map(state.avatarStates)
+      newStates.delete(userId)
+      return { avatarStates: newStates }
+    })
+  },
+  
+  // Interaction actions
+  highlightObject: (objectId) => {
+    set({ highlightedObject: objectId })
+  },
+  
+  updateNearbyObjects: (objects) => {
+    set({ nearbyObjects: objects })
+  },
+  
+  joinInteractionQueue: (objectId, position) => {
+    set((state) => {
+      const newQueue = new Map(state.interactionQueue)
+      const queue = newQueue.get(objectId) || []
+      newQueue.set(objectId, [...queue, { userId: state.player.id, position }])
+      return { interactionQueue: newQueue }
+    })
+  },
+  
+  leaveInteractionQueue: (objectId) => {
+    set((state) => {
+      const newQueue = new Map(state.interactionQueue)
+      const queue = newQueue.get(objectId) || []
+      newQueue.set(objectId, queue.filter(item => item.userId !== state.player.id))
+      return { interactionQueue: newQueue }
+    })
+  },
+  
+  updateInteractionQueue: (objectId, queue) => {
+    set((state) => {
+      const newQueue = new Map(state.interactionQueue)
+      newQueue.set(objectId, queue)
+      return { interactionQueue: newQueue }
+    })
   }
 }))

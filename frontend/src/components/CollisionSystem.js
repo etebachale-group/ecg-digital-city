@@ -134,6 +134,62 @@ export class CollisionSystem {
     this.doors = []
     this.objects = []
   }
+  
+  // Obtener todos los obstáculos para pathfinding
+  getObstacles() {
+    const obstacles = []
+    
+    // Agregar paredes
+    this.walls.forEach((wall, index) => {
+      obstacles.push({
+        id: `wall-${index}`,
+        position: {
+          x: (wall.min.x + wall.max.x) / 2,
+          y: (wall.min.y + wall.max.y) / 2,
+          z: (wall.min.z + wall.max.z) / 2
+        },
+        size: {
+          width: wall.max.x - wall.min.x,
+          height: wall.max.y - wall.min.y,
+          depth: wall.max.z - wall.min.z
+        }
+      })
+    })
+    
+    // Agregar puertas cerradas
+    this.doors.forEach(door => {
+      if (!door.isOpen) {
+        obstacles.push({
+          id: `door-${door.id}`,
+          position: {
+            x: door.position.x,
+            y: door.position.y,
+            z: door.position.z
+          },
+          size: door.size
+        })
+      }
+    })
+    
+    // Agregar objetos
+    this.objects.forEach((obj, index) => {
+      obstacles.push({
+        id: `object-${index}`,
+        position: {
+          x: obj.position.x,
+          y: obj.position.y,
+          z: obj.position.z
+        },
+        size: {
+          width: obj.radius * 2,
+          height: obj.radius * 2,
+          depth: obj.radius * 2
+        }
+      })
+    })
+    
+    return obstacles
+  }
 }
 
 // Instancia global del sistema de colisiones

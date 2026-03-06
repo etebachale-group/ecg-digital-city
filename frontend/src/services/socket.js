@@ -211,6 +211,110 @@ export const initSocket = () => {
       'Límite Diario'
     )
   })
+  
+  // ===== INTERACTION SYSTEM EVENTS =====
+  
+  // Object Events
+  socket.on('object:created', (data) => {
+    console.log('Interactive object created:', data.object)
+    useGameStore.getState().addInteractiveObject(data.object)
+  })
+  
+  socket.on('object:updated', (data) => {
+    console.log('Interactive object updated:', data.objectId)
+    useGameStore.getState().updateObjectState(data.objectId, data.updates)
+  })
+  
+  socket.on('object:deleted', (data) => {
+    console.log('Interactive object deleted:', data.objectId)
+    useGameStore.getState().removeInteractiveObject(data.objectId)
+  })
+  
+  socket.on('object:state-changed', (data) => {
+    console.log('Object state changed:', data.objectId, data.newState)
+    useGameStore.getState().updateObjectState(data.objectId, data.newState)
+  })
+  
+  // Avatar State Events
+  socket.on('avatar:state-changed', (data) => {
+    console.log('Avatar state changed:', data.userId, data.newState)
+    useGameStore.getState().setAvatarState(data.userId, data.newState)
+    
+    // Update player state in players map
+    useGameStore.getState().updatePlayer(data.userId, {
+      state: data.newState,
+      context: data.context
+    })
+  })
+  
+  // Interaction Events
+  socket.on('interaction:started', (data) => {
+    console.log('Interaction started:', data.userId, data.objectId)
+    useGameStore.getState().showToast(
+      `Interacción iniciada`,
+      'info'
+    )
+  })
+  
+  socket.on('interaction:completed', (data) => {
+    console.log('Interaction completed:', data.userId, data.objectId)
+    if (data.xpGranted > 0) {
+      useGameStore.getState().showToast(
+        `Interacción completada +${data.xpGranted} XP`,
+        'success'
+      )
+    }
+  })
+  
+  socket.on('interaction:failed', (data) => {
+    console.error('Interaction failed:', data.reason)
+    const messages = {
+      'out_of_range': 'Estás muy lejos del objeto',
+      'occupied': 'Este objeto está ocupado',
+      'no_permission': 'No tienes permiso para usar este objeto',
+      'invalid_state': 'No puedes hacer eso ahora',
+      'object_not_found': 'Objeto no encontrado'
+    }
+    useGameStore.getState().showToast(
+      messages[data.reason] || 'Error de interacción',
+      'error',
+      'Interacción'
+    )
+  })
+  
+  // Queue Events
+  socket.on('queue:joined', (data) => {
+    console.log('Joined queue:', data.objectId, 'position:', data.position)
+    useGameStore.getState().joinInteractionQueue(data.objectId, data.position)
+    useGameStore.getState().showToast(
+      `En cola - Posición ${data.position}`,
+      'info',
+      'Cola de Interacción'
+    )
+  })
+  
+  socket.on('queue:updated', (data) => {
+    console.log('Queue updated:', data.objectId)
+    useGameStore.getState().updateInteractionQueue(data.objectId, data.queue)
+  })
+  
+  socket.on('queue:your-turn', (data) => {
+    console.log('Your turn in queue:', data.objectId)
+    useGameStore.getState().showToast(
+      '¡Es tu turno!',
+      'success',
+      'Cola de Interacción'
+    )
+  })
+  
+  // Node Events
+  socket.on('node:occupied', (data) => {
+    console.log('Node occupied:', data.nodeId, 'by:', data.userId)
+  })
+  
+  socket.on('node:released', (data) => {
+    console.log('Node released:', data.nodeId)
+  })
 
   // Errores
   socket.on('error', (error) => {
@@ -311,6 +415,51 @@ export const emitChatMessage = (content, type = 'proximity') => {
 export const emitTyping = (isTyping) => {
   if (socket) {
     socket.emit('chat:typing', { isTyping })
+  }
+}
+
+// ===== INTERACTION SYSTEM EMITTERS =====
+
+export const emitInteractionRequest = (objectId, nodeId = null) => {
+  if (socket) {
+    socket.emit('interaction:request', {
+      objectId,
+      nodeId
+    })
+  }
+}
+
+export const emitInteractionCancel = (objectId) => {
+  if (socket) {
+    socket.emit('interaction:cancel', {
+      objectId
+    })
+  }
+}
+
+export const emitAvatarStateChange = (state, context = {}) => {
+  if (socket) {
+    socket.emit('avatar:state-change', {
+      state,
+      context
+    })
+  }
+}
+
+export const emitQueueJoin = (objectId, nodeId) => {
+  if (socket) {
+    socket.emit('queue:join', {
+      objectId,
+      nodeId
+    })
+  }
+}
+
+export const emitQueueLeave = (queueId) => {
+  if (socket) {
+    socket.emit('queue:leave', {
+      queueId
+    })
   }
 }
 

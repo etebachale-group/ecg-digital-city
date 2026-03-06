@@ -1,48 +1,134 @@
-# 📚 Documentación ECG Digital City
+# Documentación ECG Digital City
 
-Documentación organizada del proyecto ECG Digital City.
+## Índice
 
-## 📁 Estructura de Documentación
+### 📋 Especificaciones
+- [Sistema de Interacciones Avanzadas](../kiro/specs/sistema-interacciones-avanzadas/)
+  - [Requerimientos](../.kiro/specs/sistema-interacciones-avanzadas/requirements.md)
+  - [Diseño](../.kiro/specs/sistema-interacciones-avanzadas/design.md)
+  - [Tareas](../.kiro/specs/sistema-interacciones-avanzadas/tasks.md)
 
-### `/setup` - Guías de Configuración
-- `QUICKSTART-WSL.md` - Inicio rápido en 5 minutos
-- `SETUP-WSL-UBUNTU.md` - Configuración completa de WSL Ubuntu
-- `WSL-NO-DOCKER.md` - Explicación del cambio de Docker a WSL
-- `MIGRATION-DOCKER-TO-WSL.md` - Guía de migración
+### 🗄️ Base de Datos
+- [Estado Actual](../DATABASE-READY.md)
+- [Scripts](../backend/scripts/README.md)
 
-### `/phases` - Documentación de Fases
-- `PHASE-0-COMPLETADA.md` - Resumen de Phase 0 completada
-- `PHASE-0-EJECUCION.md` - Plan de ejecución Phase 0
-- `PHASE-0-SEMANA-1-COMPLETADA.md` - Semana 1 completada
+### 🚀 Deployment
+- [Configuración Render](../render.yaml)
 
-### `/technical-specs` - Especificaciones Técnicas
-- `PACKET-SYSTEM-SPEC.md` - Sistema de paquetes (1800+ líneas)
-- `GAME-ENGINE-SPEC.md` - Motor de juego (2000+ líneas)
+### 🎮 Características
 
-### `/testing` - Documentación de Testing
-- `TESTING-ERRORS.md` - Lista de errores y bugs corregidos
+#### Sistema de Gamificación
+- Sistema de XP y niveles (100 XP por nivel)
+- 8 logros desbloqueables
+- 7 misiones (4 diarias, 3 semanales)
+- Rachas de login diario
+- Leaderboard global
 
-### `/archive` - Documentación Histórica
-Documentos de referencia y auditorías completadas.
+#### Sistema de Interacciones Avanzadas
+- **Objetos Interactivos**: Sillas, puertas, mesas, muebles genéricos
+- **Nodos de Interacción**: Puntos específicos con estados requeridos
+- **Triggers**: Cambios de estado, otorgar XP, desbloquear logros, teletransporte
+- **Cola de Espera**: Sistema FIFO para objetos ocupados
+- **Logs**: Registro completo de interacciones para análisis
 
-## 🚀 Inicio Rápido
+#### Multiplayer
+- Chat de proximidad en tiempo real
+- Sincronización de posiciones
+- Sistema de distritos y oficinas
+- Eventos y reuniones virtuales
 
-1. Lee `setup/QUICKSTART-WSL.md` para empezar en 5 minutos
-2. Revisa `phases/PHASE-0-COMPLETADA.md` para ver el estado actual
-3. Consulta `testing/TESTING-ERRORS.md` para bugs conocidos
+### 🏗️ Arquitectura
 
-## 📖 Documentación Principal
+```
+Frontend (React + Three.js)
+    ↓ HTTP/WebSocket
+Backend (Node.js + Express + Socket.IO)
+    ↓ Sequelize ORM
+PostgreSQL (Render)
+    ↓ (opcional)
+Redis Cache
+```
 
-La documentación principal del proyecto está en la raíz:
-- `README.md` - Visión general del proyecto
-- `CONTRIBUTING.md` - Guía de contribución
-- `AHORA-QUE.md` - Próximos pasos
-- `WORKFLOW-IMPLEMENTACION-COMPLETA.md` - Roadmap completo (12 fases)
-- `GUIA-RAPIDA-REFERENCIA.md` - Referencia rápida
-- `INICIO-PLAN-EJECUTIVO.md` - Plan ejecutivo
+### 📊 Modelos de Datos
 
-## 🔗 Enlaces Útiles
+#### Core
+- Users, Avatars, Companies
+- Districts, Offices, Permissions
 
-- [Repositorio GitHub](https://github.com/tu-usuario/ecg-digital-city)
-- [Issues](https://github.com/tu-usuario/ecg-digital-city/issues)
-- [Pull Requests](https://github.com/tu-usuario/ecg-digital-city/pulls)
+#### Gamificación
+- UserProgress, Achievements, Missions
+- UserAchievements, UserMissions
+
+#### Interacciones
+- InteractiveObjects, InteractionNodes
+- ObjectTriggers, InteractionQueue, InteractionLogs
+
+#### Eventos
+- Events, EventAttendees
+
+### 🔧 Tecnologías
+
+**Frontend:**
+- React 18
+- Vite
+- Three.js / React Three Fiber
+- Zustand (state management)
+- Socket.IO Client
+
+**Backend:**
+- Node.js 18+
+- Express
+- Socket.IO
+- Sequelize ORM
+- PostgreSQL
+- Redis (opcional)
+- Winston (logging)
+
+**DevOps:**
+- Render (hosting)
+- GitHub Actions (CI/CD)
+
+### 📝 Convenciones
+
+#### Código
+- ESLint + Prettier
+- Commits semánticos
+- Tests con Jest
+
+#### Base de Datos
+- snake_case para tablas y columnas
+- Timestamps automáticos (created_at, updated_at)
+- Soft deletes con is_active
+- Índices en foreign keys y campos de búsqueda
+
+#### API
+- REST para operaciones CRUD
+- WebSocket para tiempo real
+- Respuestas JSON estándar
+- Códigos HTTP apropiados
+
+### 🧪 Testing
+
+```bash
+# Backend
+cd backend
+npm test
+
+# Frontend
+cd frontend
+npm test
+```
+
+### 📈 Roadmap
+
+- [x] Sistema de gamificación básico
+- [x] Sistema de interacciones avanzadas
+- [x] Multiplayer en tiempo real
+- [ ] Sistema de voz (WebRTC)
+- [ ] Optimizaciones de red (packet system)
+- [ ] Audio 3D espacial
+- [ ] Sistema de física avanzado
+
+### 🤝 Contribuir
+
+Ver [CONTRIBUTING.md](../CONTRIBUTING.md)

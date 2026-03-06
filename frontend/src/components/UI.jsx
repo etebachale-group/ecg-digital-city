@@ -5,6 +5,8 @@ import { emitChatMessage, emitTyping } from '../services/socket'
 import CompanyDashboard from './CompanyDashboard'
 import Leaderboard from './Leaderboard'
 import CameraIndicator from './CameraIndicator'
+import InteractionIndicators from './InteractionIndicators'
+import InteractionQueue from './InteractionQueue'
 import './UI.css'
 
 function UI() {
@@ -154,6 +156,10 @@ function UI() {
       {showLeaderboard && (
         <Leaderboard onClose={() => setShowLeaderboard(false)} />
       )}
+      
+      {/* Interaction System UI */}
+      <InteractionIndicators />
+      <InteractionQueue />
     </div>
   )
 }

@@ -112,15 +112,18 @@ const InteractiveObject = ({
             // Store original emissive if not already stored
             if (!child.userData.originalEmissive) {
               child.userData.originalEmissive = child.material.emissive?.clone() || new THREE.Color(0x000000);
+              child.userData.originalEmissiveIntensity = child.material.emissiveIntensity || 0;
             }
-            // Apply highlight
+            // Apply highlight with golden glow
             if (child.material.emissive) {
-              child.material.emissive.setHex(0x444444);
+              child.material.emissive.setHex(0xf39c12); // Golden color
+              child.material.emissiveIntensity = 0.5;
             }
           } else {
             // Restore original emissive
             if (child.userData.originalEmissive && child.material.emissive) {
               child.material.emissive.copy(child.userData.originalEmissive);
+              child.material.emissiveIntensity = child.userData.originalEmissiveIntensity || 0;
             }
           }
         }

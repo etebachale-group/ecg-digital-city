@@ -11,7 +11,7 @@ const sequelize = new Sequelize(
     dialect: 'postgres',
     logging: (msg) => logger.debug(msg),
     pool: {
-      max: 10,
+      max: 5,
       min: 0,
       acquire: 30000,
       idle: 10000
@@ -20,9 +20,7 @@ const sequelize = new Sequelize(
       ssl: process.env.NODE_ENV === 'production' ? {
         require: true,
         rejectUnauthorized: false
-      } : false,
-      // Forzar IPv4 para Supabase
-      family: 4
+      } : false
     }
   }
 );

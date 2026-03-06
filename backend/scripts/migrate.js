@@ -68,11 +68,18 @@ async function runMigrations() {
     }
 
     console.log(`\n✓ Migraciones completadas: ${executed} nuevas`);
-    process.exit(0);
+    return { success: true, executed };
   } catch (error) {
     console.error('Error ejecutando migraciones:', error);
-    process.exit(1);
+    throw error;
   }
 }
 
-runMigrations();
+// Si se ejecuta directamente
+if (require.main === module) {
+  runMigrations()
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1));
+}
+
+module.exports = { runMigrations };

@@ -154,6 +154,18 @@ async function startServer() {
     await initializeDatabase();
     logger.info('✅ Base de datos conectada');
     
+    // Ejecutar migraciones automáticamente en producción
+    if (process.env.NODE_ENV === 'production' && process.env.AUTO_MIGRATE !== 'false') {
+      logger.info('🔄 Ejecutando migraciones automáticas...');
+      try {
+        const { runMigrations } = require('../scripts/migrate');
+        await runMigrations();
+        logger.info('✅ Migraciones completadas');
+      } catch (migrationError) {
+        logger.warn('⚠️  Error en migraciones (continuando):', migrationError.message);
+      }
+    }
+    
     // Seed de gamificación
     logger.info('🔄 Ejecutando seed de gamificación...');
     const { seedGamification } = require('./utils/seedGamification');

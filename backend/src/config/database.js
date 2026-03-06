@@ -34,9 +34,13 @@ async function initializeDatabase() {
     // await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
     logger.info('Base de datos lista (schema gestionado por migraciones)');
     
-    // Seed de distritos iniciales
-    const { seedDistricts } = require('../utils/seedDistricts');
-    await seedDistricts();
+    // Seed de distritos iniciales (solo si las tablas existen)
+    try {
+      const { seedDistricts } = require('../utils/seedDistricts');
+      await seedDistricts();
+    } catch (seedError) {
+      logger.warn('⚠️  Error en seed de distritos (probablemente tablas no creadas aún):', seedError.message);
+    }
     
     return sequelize;
   } catch (error) {

@@ -161,8 +161,14 @@ async function startServer() {
         const { runMigrations } = require('../scripts/migrate');
         await runMigrations();
         logger.info('✅ Migraciones completadas');
+        
+        // Seed de distritos DESPUÉS de las migraciones
+        logger.info('🔄 Ejecutando seed de distritos...');
+        const { seedDistricts } = require('./utils/seedDistricts');
+        await seedDistricts();
+        logger.info('✅ Seed de distritos completado');
       } catch (migrationError) {
-        logger.warn('⚠️  Error en migraciones (continuando):', migrationError.message);
+        logger.warn('⚠️  Error en migraciones:', migrationError.message);
       }
     }
     

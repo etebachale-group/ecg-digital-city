@@ -30,8 +30,26 @@ async function initializeDatabase() {
     await sequelize.authenticate();
     logger.info('Conexión a PostgreSQL establecida');
     
-    // Don't auto-sync - we manage schema with migrations and SQL scripts
-    // await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
+    // En producción, crear tablas base si no existen
+    if (process.env.NODE_ENV === 'production') {
+      try {
+        // Verificar si ya existen tablas
+        const [tables] = await sequelize.query(
+          "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
+        );
+        
+        if (tables.length === 0) {
+          logger.info('🔄 Base de datos vacía, creando tablas base...');
+          await sequelize.sync({ force: false });
+          logger.info('✅ Tablas base creadas');
+        } else {
+          logger.info(`✅ Base de datos tiene ${tables.length} tablas`);
+        }
+      } catch (syncError) {
+        logger.warn('⚠️  Error verificando/creando tablas:', syncError.message);
+      }
+    }
+    
     logger.info('Base de datos lista (schema gestionado por migraciones)');
     
     // Seed de distritos iniciales (solo si las tablas existen)

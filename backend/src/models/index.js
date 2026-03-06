@@ -131,10 +131,12 @@ InteractiveObject.hasMany(InteractionLog, { foreignKey: 'objectId', as: 'logs' }
 InteractionLog.belongsTo(InteractiveObject, { foreignKey: 'objectId', as: 'object' });
 
 // Avatar - InteractiveObject (N:1 for interactingWith)
-Avatar.belongsTo(InteractiveObject, { foreignKey: 'interactingWith', as: 'currentInteraction' });
+// DESHABILITADO: Requiere columnas del Sistema de Interacciones
+// Avatar.belongsTo(InteractiveObject, { foreignKey: 'interactingWith', as: 'currentInteraction' });
 
 // Avatar - InteractionNode (N:1 for sittingAt)
-Avatar.belongsTo(InteractionNode, { foreignKey: 'sittingAt', as: 'currentSeat' });
+// DESHABILITADO: Requiere columnas del Sistema de Interacciones
+// Avatar.belongsTo(InteractionNode, { foreignKey: 'sittingAt', as: 'currentSeat' });
 
 module.exports = {
   User,

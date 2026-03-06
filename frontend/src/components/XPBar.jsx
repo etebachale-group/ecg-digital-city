@@ -16,16 +16,16 @@ function XPBar() {
 
   if (!progress) return null
 
-  const xpForCurrentLevel = (progress.level - 1) * 100
-  const xpForNextLevel = progress.level * 100
-  const xpInCurrentLevel = progress.xp - xpForCurrentLevel
+  const xpForCurrentLevel = ((progress.level || 1) - 1) * 100
+  const xpForNextLevel = (progress.level || 1) * 100
+  const xpInCurrentLevel = (progress.xp || 0) - xpForCurrentLevel
   const xpNeededForLevel = xpForNextLevel - xpForCurrentLevel
   const percentage = (xpInCurrentLevel / xpNeededForLevel) * 100
 
   return (
     <div className="xp-bar-container">
       <div className="xp-bar-header">
-        <span className="level-badge">Nivel {progress.level}</span>
+        <span className="level-badge">Nivel {progress.level || 1}</span>
         <span className="xp-text">
           {xpInCurrentLevel} / {xpNeededForLevel} XP
         </span>
@@ -39,8 +39,8 @@ function XPBar() {
         </div>
       </div>
       <div className="xp-bar-stats">
-        <span>🔥 {progress.streakDays} días</span>
-        <span>⭐ {progress.xp} XP total</span>
+        <span>🔥 {progress.streakDays || 0} días</span>
+        <span>⭐ {progress.xp || 0} XP total</span>
       </div>
     </div>
   )

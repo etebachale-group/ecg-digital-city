@@ -62,9 +62,9 @@ function App() {
       // Registrar login diario y dar XP
       if (user.id) {
         dailyLogin(user.id).then((data) => {
-          if (data) {
+          if (data && data.progress) {
             useGameStore.getState().showToast(
-              `¡Bienvenido! +10 XP 🎉 Racha: ${data.progress.streakDays} días`,
+              `¡Bienvenido! +10 XP 🎉 Racha: ${data.progress.streakDays || 0} días`,
               'success'
             )
           }

@@ -106,14 +106,24 @@ router.post('/daily-login', async (req, res) => {
 
     let progress = await UserProgress.findOne({ where: { userId } })
     if (!progress) {
-      progress = await UserProgress.create({ userId })
+      progress = await UserProgress.create({ 
+        userId,
+        xp: 0,
+        level: 1,
+        totalLogins: 0,
+        totalMessages: 0,
+        totalDistrictsVisited: 0,
+        totalEventsAttended: 0,
+        streakDays: 0,
+        lastLogin: null
+      })
     }
 
     const today = new Date().toISOString().split('T')[0]
     const lastLogin = progress.lastLogin
 
     // Incrementar total de logins
-    progress.totalLogins += 1
+    progress.totalLogins = (progress.totalLogins || 0) + 1
 
     // Calcular racha
     if (lastLogin) {
@@ -122,7 +132,7 @@ router.post('/daily-login', async (req, res) => {
       const yesterdayStr = yesterday.toISOString().split('T')[0]
 
       if (lastLogin === yesterdayStr) {
-        progress.streakDays += 1
+        progress.streakDays = (progress.streakDays || 0) + 1
       } else if (lastLogin !== today) {
         progress.streakDays = 1
       }
@@ -131,14 +141,14 @@ router.post('/daily-login', async (req, res) => {
     }
 
     progress.lastLogin = today
-    await progress.save()
-
+    
     // Dar XP por login
-    progress.xp += 10
+    progress.xp = (progress.xp || 0) + 10
     const newLevel = Math.floor(progress.xp / 100) + 1
-    if (newLevel > progress.level) {
+    if (newLevel > (progress.level || 1)) {
       progress.level = newLevel
     }
+    
     await progress.save()
 
     await invalidateUserProgressCache(userId)

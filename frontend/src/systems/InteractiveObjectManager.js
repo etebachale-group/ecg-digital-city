@@ -1,31 +1,31 @@
 /**
  * InteractiveObjectManager
  * 
- * Manages interactive objects in the scene, handles synchronization
- * with server, and maintains local cache.
+ * Manages local cache of interactive objects and synchronizes with server state.
+ * Handles Socket.IO events for object creation, updates, deletion, and state changes.
  */
 
 class InteractiveObjectManager {
-  constructor(socket = null, apiBaseUrl = '/api') {
+  constructor(socket, gameStore) {
     this.socket = socket;
-    this.apiBaseUrl = apiBaseUrl;
-    
-    // Local cache of interactive objects
+    this.gameStore = gameStore;
     this.objects = new Map(); // objectId -> object data
-    
-    // Callbacks
-    this.onObjectAddedCallbacks = [];
-    this.onObjectUpdatedCallbacks = [];
-    this.onObjectRemovedCallbacks = [];
-    this.onObjectStateChangedCallbacks = [];
-    
-    // Setup socket listeners
-    if (this.socket) {
-      this.setupSocketListeners();
-    }
+    this.initialized = false;
+
+    this.setupSocketListeners();
   }
 
   /**
+   * Setup Socket.IO event listeners
+   */
+  setupSocketListeners() {
+    // Object created
+    this.socket.on('object:created', (data) => {
+      this.addObject(data.object);
+    });
+
+    // Object updated
+    this.socket.on('object:upd
    * Setup Socket.IO event listeners
    */
   setupSocketListeners() {

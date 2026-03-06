@@ -357,12 +357,12 @@ INSERT INTO missions (name, description, mission_type, target_value, xp_reward, 
 
 -- Función para actualizar updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS $BODY$
 BEGIN
   NEW.updated_at = CURRENT_TIMESTAMP;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$BODY$ LANGUAGE plpgsql;
 
 -- Aplicar trigger a todas las tablas con updated_at
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
@@ -429,4 +429,197 @@ ORDER BY table_name;
 \echo 'Misiones: 7'
 \echo ''
 \echo 'La base de datos está lista para usar.'
+\echo ''
+
+-- ============================================================================
+-- SISTEMA DE INTERACCIONES AVANZADAS
+-- ============================================================================
+
+\echo '2b. CREANDO TABLAS DEL SISTEMA DE INTERACCIONES...'
+
+-- INTERACTIVE OBJECTS TABLE
+CREATE TABLE interactive_objects (
+  id SERIAL PRIMARY KEY,
+  office_id INTEGER NOT NULL REFERENCES offices(id) ON DELETE CASCADE,
+  object_type VARCHAR(50) NOT NULL CHECK (object_type IN ('chair', 'door', 'table', 'furniture')),
+  name VARCHAR(200) NOT NULL,
+  model_path VARCHAR(500),
+  position JSONB NOT NULL DEFAULT '{"x": 0, "y": 0, "z": 0}',
+  rotation JSONB NOT NULL DEFAULT '{"x": 0, "y": 0, "z": 0}',
+  scale JSONB NOT NULL DEFAULT '{"x": 1, "y": 1, "z": 1}',
+  state JSONB NOT NULL DEFAULT '{}',
+  config JSONB NOT NULL DEFAULT '{}',
+  is_active BOOLEAN DEFAULT true,
+  created_by INTEGER NOT NULL REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- INTERACTION NODES TABLE
+CREATE TABLE interaction_nodes (
+  id SERIAL PRIMARY KEY,
+  object_id INTEGER NOT NULL REFERENCES interactive_objects(id) ON DELETE CASCADE,
+  position JSONB NOT NULL,
+  required_state VARCHAR(50) NOT NULL CHECK (required_state IN ('idle', 'walking', 'running', 'sitting', 'interacting', 'dancing')),
+  is_occupied BOOLEAN DEFAULT false,
+  occupied_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  occupied_at TIMESTAMP,
+  max_occupancy INTEGER DEFAULT 1 CHECK (max_occupancy > 0),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- OBJECT TRIGGERS TABLE
+CREATE TABLE object_triggers (
+  id SERIAL PRIMARY KEY,
+  object_id INTEGER NOT NULL REFERENCES interactive_objects(id) ON DELETE CASCADE,
+  trigger_type VARCHAR(50) NOT NULL CHECK (trigger_type IN ('state_change', 'grant_xp', 'unlock_achievement', 'teleport')),
+  trigger_data JSONB NOT NULL,
+  priority INTEGER DEFAULT 0,
+  condition JSONB,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- INTERACTION QUEUE TABLE
+CREATE TABLE interaction_queue (
+  id SERIAL PRIMARY KEY,
+  object_id INTEGER NOT NULL REFERENCES interactive_objects(id) ON DELETE CASCADE,
+  node_id INTEGER NOT NULL REFERENCES interaction_nodes(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  position INTEGER NOT NULL CHECK (position > 0),
+  joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  expires_at TIMESTAMP NOT NULL
+);
+
+-- INTERACTION LOGS TABLE
+CREATE TABLE interaction_logs (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  object_id INTEGER NOT NULL REFERENCES interactive_objects(id) ON DELETE CASCADE,
+  interaction_type VARCHAR(50) NOT NULL,
+  success BOOLEAN NOT NULL,
+  error_message TEXT,
+  xp_granted INTEGER DEFAULT 0,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- AVATAR STATE EXTENSIONS
+ALTER TABLE avatars ADD COLUMN IF NOT EXISTS current_state VARCHAR(50) DEFAULT 'idle';
+ALTER TABLE avatars ADD COLUMN IF NOT EXISTS previous_state VARCHAR(50);
+ALTER TABLE avatars ADD COLUMN IF NOT EXISTS state_changed_at TIMESTAMP;
+ALTER TABLE avatars ADD COLUMN IF NOT EXISTS interacting_with INTEGER REFERENCES interactive_objects(id) ON DELETE SET NULL;
+ALTER TABLE avatars ADD COLUMN IF NOT EXISTS sitting_at INTEGER REFERENCES interaction_nodes(id) ON DELETE SET NULL;
+
+\echo '✓ Tablas del sistema de interacciones creadas'
+\echo ''
+
+-- Índices para Sistema de Interacciones
+CREATE INDEX idx_interactive_objects_office ON interactive_objects(office_id);
+CREATE INDEX idx_interactive_objects_type ON interactive_objects(object_type);
+CREATE INDEX idx_interactive_objects_active ON interactive_objects(is_active);
+CREATE INDEX idx_interactive_objects_created_by ON interactive_objects(created_by);
+
+CREATE INDEX idx_interaction_nodes_object ON interaction_nodes(object_id);
+CREATE INDEX idx_interaction_nodes_occupied ON interaction_nodes(is_occupied);
+CREATE INDEX idx_interaction_nodes_occupied_by ON interaction_nodes(occupied_by);
+
+CREATE INDEX idx_object_triggers_object ON object_triggers(object_id);
+CREATE INDEX idx_object_triggers_priority ON object_triggers(priority DESC);
+CREATE INDEX idx_object_triggers_active ON object_triggers(is_active);
+CREATE INDEX idx_object_triggers_type ON object_triggers(trigger_type);
+
+CREATE INDEX idx_interaction_queue_object ON interaction_queue(object_id);
+CREATE INDEX idx_interaction_queue_node ON interaction_queue(node_id);
+CREATE INDEX idx_interaction_queue_user ON interaction_queue(user_id);
+CREATE INDEX idx_interaction_queue_expires ON interaction_queue(expires_at);
+CREATE INDEX idx_interaction_queue_position ON interaction_queue(object_id, position);
+CREATE UNIQUE INDEX idx_interaction_queue_unique_user_object ON interaction_queue(object_id, user_id);
+
+CREATE INDEX idx_interaction_logs_user ON interaction_logs(user_id);
+CREATE INDEX idx_interaction_logs_object ON interaction_logs(object_id);
+CREATE INDEX idx_interaction_logs_timestamp ON interaction_logs(timestamp DESC);
+CREATE INDEX idx_interaction_logs_success ON interaction_logs(success);
+CREATE INDEX idx_interaction_logs_type ON interaction_logs(interaction_type);
+CREATE INDEX idx_interaction_logs_user_timestamp ON interaction_logs(user_id, timestamp DESC);
+
+CREATE INDEX idx_avatars_state ON avatars(current_state);
+CREATE INDEX idx_avatars_interacting_with ON avatars(interacting_with);
+CREATE INDEX idx_avatars_sitting_at ON avatars(sitting_at);
+
+
+-- Triggers para Sistema de Interacciones
+CREATE TRIGGER update_interactive_objects_updated_at
+  BEFORE UPDATE ON interactive_objects
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_interaction_nodes_updated_at
+  BEFORE UPDATE ON interaction_nodes
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_object_triggers_updated_at
+  BEFORE UPDATE ON object_triggers
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+-- Función para actualizar posiciones en la cola
+CREATE OR REPLACE FUNCTION update_queue_positions()
+RETURNS TRIGGER AS $BODY$ BEGIN
+  UPDATE interaction_queue
+  SET position = position - 1
+  WHERE object_id = OLD.object_id 
+    AND position > OLD.position;
+  RETURN OLD;
+END; $BODY$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_queue_positions_on_delete
+  AFTER DELETE ON interaction_queue
+  FOR EACH ROW
+  EXECUTE FUNCTION update_queue_positions();
+
+-- Función para limpiar colas expiradas
+CREATE OR REPLACE FUNCTION cleanup_expired_queue_entries()
+RETURNS void AS $BODY$ BEGIN
+  DELETE FROM interaction_queue WHERE expires_at < CURRENT_TIMESTAMP;
+END; $BODY$ LANGUAGE plpgsql;
+
+
+-- Vistas para Sistema de Interacciones
+CREATE OR REPLACE VIEW interactive_objects_with_node_count AS
+SELECT 
+  io.*,
+  COUNT(in2.id) as node_count,
+  COUNT(CASE WHEN in2.is_occupied THEN 1 END) as occupied_nodes
+FROM interactive_objects io
+LEFT JOIN interaction_nodes in2 ON io.id = in2.object_id
+GROUP BY io.id;
+
+CREATE OR REPLACE VIEW interaction_queue_with_users AS
+SELECT 
+  iq.*,
+  u.username,
+  u.email,
+  io.name as object_name,
+  io.object_type
+FROM interaction_queue iq
+JOIN users u ON iq.user_id = u.id
+JOIN interactive_objects io ON iq.object_id = io.id
+ORDER BY iq.object_id, iq.position;
+
+CREATE OR REPLACE VIEW user_interaction_stats AS
+SELECT 
+  user_id,
+  COUNT(*) as total_interactions,
+  COUNT(CASE WHEN success THEN 1 END) as successful_interactions,
+  COUNT(CASE WHEN NOT success THEN 1 END) as failed_interactions,
+  SUM(xp_granted) as total_xp_from_interactions,
+  COUNT(DISTINCT object_id) as unique_objects_interacted,
+  MAX(timestamp) as last_interaction
+FROM interaction_logs
+GROUP BY user_id;
+
+\echo '✓ Vistas del sistema de interacciones creadas'
 \echo ''

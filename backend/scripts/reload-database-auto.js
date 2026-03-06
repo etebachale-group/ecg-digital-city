@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * Script para recargar la base de datos completa
+ * Script para recargar la base de datos completa (sin confirmación)
  * ECG Digital City
  */
 
 const { Client } = require('pg');
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
 
 // Configuración de la base de datos
 const config = {
@@ -22,35 +21,8 @@ const config = {
   }
 };
 
-// Función para preguntar confirmación
-function askConfirmation() {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  return new Promise((resolve) => {
-    console.log('\n⚠️  ADVERTENCIA: Este script ELIMINARÁ TODOS LOS DATOS\n');
-    console.log('Base de datos:', config.database);
-    console.log('Host:', config.host);
-    console.log('');
-    
-    rl.question('¿Estás seguro de continuar? (escribe "SI" para confirmar): ', (answer) => {
-      rl.close();
-      resolve(answer === 'SI');
-    });
-  });
-}
-
 // Función principal
 async function reloadDatabase() {
-  const confirmed = await askConfirmation();
-  
-  if (!confirmed) {
-    console.log('\n❌ Operación cancelada\n');
-    process.exit(0);
-  }
-
   console.log('\n🔄 Conectando a la base de datos...\n');
 
   const client = new Client(config);
@@ -69,7 +41,6 @@ async function reloadDatabase() {
     console.log('🔄 Ejecutando script de recarga...\n');
 
     // Dividir el script en statements individuales
-    // Usar un delimitador especial para funciones PL/pgSQL
     const statements = [];
     let currentStatement = '';
     let inFunction = false;

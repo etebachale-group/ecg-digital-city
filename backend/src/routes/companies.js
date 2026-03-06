@@ -10,9 +10,11 @@ const logger = require('../utils/logger');
 // Obtener todas las empresas
 router.get('/', async (req, res) => {
   try {
-    const cached = await redis.get('companies:all');
-    if (cached) {
-      return res.json(JSON.parse(cached));
+    if (redis) {
+      const cached = await redis.get('companies:all');
+      if (cached) {
+        return res.json(JSON.parse(cached));
+      }
     }
 
     const companies = await Company.findAll({
@@ -20,7 +22,9 @@ router.get('/', async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
 
-    await redis.setex('companies:all', 300, JSON.stringify(companies));
+    if (redis) {
+      await redis.setex('companies:all', 300, JSON.stringify(companies));
+    }
     res.json(companies);
   } catch (error) {
     logger.error('Error obteniendo empresas:', error);
@@ -33,9 +37,11 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const cached = await redis.get(`company:${id}`);
-    if (cached) {
-      return res.json(JSON.parse(cached));
+    if (redis) {
+      const cached = await redis.get(`company:${id}`);
+      if (cached) {
+        return res.json(JSON.parse(cached));
+      }
     }
 
     const company = await Company.findByPk(id, {
@@ -46,7 +52,9 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Empresa no encontrada' });
     }
 
-    await redis.setex(`company:${id}`, 300, JSON.stringify(company));
+    if (redis) {
+      await redis.setex(`company:${id}`, 300, JSON.stringify(company));
+    }
     res.json(company);
   } catch (error) {
     logger.error('Error obteniendo empresa:', error);
@@ -103,7 +111,9 @@ router.post('/', async (req, res) => {
     }
 
     // Invalidar cache
-    await redis.del('companies:all');
+    if (redis) {
+      await redis.del('companies:all');
+    }
 
     logger.info(`Nueva empresa creada: ${name}`);
     res.status(201).json(company);
@@ -127,8 +137,10 @@ router.put('/:id', async (req, res) => {
     await company.update({ name, description, logo, subscriptionTier });
 
     // Invalidar cache
-    await redis.del(`company:${id}`);
-    await redis.del('companies:all');
+    if (redis) {
+      await redis.del(`company:${id}`);
+      await redis.del('companies:all');
+    }
 
     res.json(company);
   } catch (error) {
@@ -150,8 +162,10 @@ router.delete('/:id', async (req, res) => {
     await company.update({ isActive: false });
 
     // Invalidar cache
-    await redis.del(`company:${id}`);
-    await redis.del('companies:all');
+    if (redis) {
+      await redis.del(`company:${id}`);
+      await redis.del('companies:all');
+    }
 
     res.json({ message: 'Empresa eliminada exitosamente' });
   } catch (error) {

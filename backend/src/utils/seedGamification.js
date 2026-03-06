@@ -6,154 +6,154 @@ const achievements = [
   {
     name: 'Primera Conexión',
     description: 'Inicia sesión por primera vez',
-    category: 'social',
+    
     icon: '👋',
     xpReward: 50,
-    requirementType: 'login_count',
-    requirementValue: 1
+    conditionType: 'login_count',
+    conditionValue: 1
   },
   {
     name: 'Conversador',
     description: 'Envía 100 mensajes',
-    category: 'social',
+    
     icon: '💬',
     xpReward: 100,
-    requirementType: 'message_count',
-    requirementValue: 100
+    conditionType: 'message_count',
+    conditionValue: 100
   },
   {
     name: 'Influencer',
     description: 'Conecta con 50 personas',
-    category: 'social',
+    
     icon: '⭐',
     xpReward: 200,
-    requirementType: 'connection_count',
-    requirementValue: 50
+    conditionType: 'connection_count',
+    conditionValue: 50
   },
   {
     name: 'Anfitrión',
     description: 'Organiza 5 eventos',
-    category: 'social',
+    
     icon: '🎉',
     xpReward: 150,
-    requirementType: 'event_organized',
-    requirementValue: 5
+    conditionType: 'event_organized',
+    conditionValue: 5
   },
   
   // Categoría: Explorador
   {
     name: 'Turista',
     description: 'Visita los 4 distritos',
-    category: 'explorador',
+    
     icon: '🗺️',
     xpReward: 100,
-    requirementType: 'districts_visited',
-    requirementValue: 4
+    conditionType: 'districts_visited',
+    conditionValue: 4
   },
   {
     name: 'Conocedor',
     description: 'Visita 20 oficinas diferentes',
-    category: 'explorador',
+    
     icon: '🏢',
     xpReward: 150,
-    requirementType: 'offices_visited',
-    requirementValue: 20
+    conditionType: 'offices_visited',
+    conditionValue: 20
   },
   {
     name: 'Trotamundos',
     description: 'Teletransportate 50 veces',
-    category: 'explorador',
+    
     icon: '✨',
     xpReward: 100,
-    requirementType: 'teleport_count',
-    requirementValue: 50
+    conditionType: 'teleport_count',
+    conditionValue: 50
   },
   
   // Categoría: Empresarial
   {
     name: 'Emprendedor',
     description: 'Crea tu primera empresa',
-    category: 'empresarial',
+    
     icon: '🚀',
     xpReward: 200,
-    requirementType: 'company_created',
-    requirementValue: 1
+    conditionType: 'company_created',
+    conditionValue: 1
   },
   {
     name: 'Magnate',
     description: 'Posee 3 o más empresas',
-    category: 'empresarial',
+    
     icon: '💼',
     xpReward: 300,
-    requirementType: 'company_count',
-    requirementValue: 3
+    conditionType: 'company_count',
+    conditionValue: 3
   },
   {
     name: 'Constructor',
     description: 'Crea 10 oficinas',
-    category: 'empresarial',
+    
     icon: '🏗️',
     xpReward: 250,
-    requirementType: 'office_created',
-    requirementValue: 10
+    conditionType: 'office_created',
+    conditionValue: 10
   },
   {
     name: 'Decorador',
     description: 'Coloca 100 objetos en oficinas',
-    category: 'empresarial',
+    
     icon: '🎨',
     xpReward: 150,
-    requirementType: 'objects_placed',
-    requirementValue: 100
+    conditionType: 'objects_placed',
+    conditionValue: 100
   },
   
   // Categoría: Eventos
   {
     name: 'Asistente',
     description: 'Asiste a 5 eventos',
-    category: 'eventos',
+    
     icon: '🎫',
     xpReward: 100,
-    requirementType: 'events_attended',
-    requirementValue: 5
+    conditionType: 'events_attended',
+    conditionValue: 5
   },
   {
     name: 'Organizador',
     description: 'Crea 3 eventos',
-    category: 'eventos',
+    
     icon: '📅',
     xpReward: 150,
-    requirementType: 'events_created',
-    requirementValue: 3
+    conditionType: 'events_created',
+    conditionValue: 3
   },
   {
     name: 'Networker',
     description: 'Conoce 20 personas en eventos',
-    category: 'eventos',
+    
     icon: '🤝',
     xpReward: 200,
-    requirementType: 'event_connections',
-    requirementValue: 20
+    conditionType: 'event_connections',
+    conditionValue: 20
   },
   
   // Categoría: Especial
   {
     name: 'Madrugador',
     description: 'Mantén una racha de 7 días',
-    category: 'especial',
+    
     icon: '🌅',
     xpReward: 250,
-    requirementType: 'streak_days',
-    requirementValue: 7
+    conditionType: 'streak_days',
+    conditionValue: 7
   },
   {
     name: 'Dedicado',
     description: 'Mantén una racha de 30 días',
-    category: 'especial',
+    
     icon: '🔥',
     xpReward: 500,
-    requirementType: 'streak_days',
-    requirementValue: 30
+    conditionType: 'streak_days',
+    conditionValue: 30
   }
 ]
 
@@ -165,8 +165,8 @@ const missions = [
     missionType: 'social',
     difficulty: 'easy',
     xpReward: 50,
-    requirementType: 'send_messages',
-    requirementValue: 3,
+    conditionType: 'send_messages',
+    conditionValue: 3,
     isDaily: true,
     isActive: true
   },
@@ -176,8 +176,8 @@ const missions = [
     missionType: 'exploration',
     difficulty: 'easy',
     xpReward: 30,
-    requirementType: 'visit_district',
-    requirementValue: 1,
+    conditionType: 'visit_district',
+    conditionValue: 1,
     isDaily: true,
     isActive: true
   },
@@ -187,8 +187,8 @@ const missions = [
     missionType: 'exploration',
     difficulty: 'easy',
     xpReward: 40,
-    requirementType: 'visit_offices',
-    requirementValue: 2,
+    conditionType: 'visit_offices',
+    conditionValue: 2,
     isDaily: true,
     isActive: true
   },
@@ -200,8 +200,8 @@ const missions = [
     missionType: 'social',
     difficulty: 'medium',
     xpReward: 100,
-    requirementType: 'send_messages',
-    requirementValue: 10,
+    conditionType: 'send_messages',
+    conditionValue: 10,
     isDaily: true,
     isActive: true
   },
@@ -211,8 +211,8 @@ const missions = [
     missionType: 'exploration',
     difficulty: 'medium',
     xpReward: 80,
-    requirementType: 'teleport',
-    requirementValue: 5,
+    conditionType: 'teleport',
+    conditionValue: 5,
     isDaily: true,
     isActive: true
   },
@@ -222,8 +222,8 @@ const missions = [
     missionType: 'business',
     difficulty: 'medium',
     xpReward: 120,
-    requirementType: 'place_objects',
-    requirementValue: 5,
+    conditionType: 'place_objects',
+    conditionValue: 5,
     isDaily: true,
     isActive: true
   },
@@ -235,8 +235,8 @@ const missions = [
     missionType: 'exploration',
     difficulty: 'hard',
     xpReward: 200,
-    requirementType: 'visit_all_districts',
-    requirementValue: 4,
+    conditionType: 'visit_all_districts',
+    conditionValue: 4,
     isDaily: false,
     isActive: true
   },
@@ -246,8 +246,8 @@ const missions = [
     missionType: 'social',
     difficulty: 'hard',
     xpReward: 250,
-    requirementType: 'unique_conversations',
-    requirementValue: 10,
+    conditionType: 'unique_conversations',
+    conditionValue: 10,
     isDaily: false,
     isActive: true
   },
@@ -257,8 +257,8 @@ const missions = [
     missionType: 'events',
     difficulty: 'medium',
     xpReward: 150,
-    requirementType: 'attend_event',
-    requirementValue: 1,
+    conditionType: 'attend_event',
+    conditionValue: 1,
     isDaily: false,
     isActive: true
   },
@@ -268,8 +268,8 @@ const missions = [
     missionType: 'business',
     difficulty: 'medium',
     xpReward: 180,
-    requirementType: 'office_activity',
-    requirementValue: 1,
+    conditionType: 'office_activity',
+    conditionValue: 1,
     isDaily: false,
     isActive: true
   }

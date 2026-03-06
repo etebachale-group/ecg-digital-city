@@ -2,20 +2,31 @@
 
 ## 👋 Bienvenido
 
-Tu base de datos está en Supabase con 18 tablas y datos, pero Render no puede conectarse por IPv6.
+**Situación actual:**
+- ❌ Render no puede conectarse a la base de datos
+- ✅ Tienes Supabase listo con 18 tablas y datos
+- 🎯 Solución: Configurar Connection Pooler de Supabase (8 minutos)
 
-**Solución:** Usar el Connection Pooler de Supabase (8 minutos).
+**Error actual:** `Connection terminated unexpectedly` con Render PostgreSQL
 
 ---
 
 ## ⚡ Acción Rápida (Elige tu camino)
 
-### 🎯 Camino 1: Tengo 8 minutos, quiero usar Supabase
+### 🎯 Camino 1: Usar Supabase (8 min) ⭐ RECOMENDADO
+
+Tu base de datos de Render tiene problemas. Supabase ya está lista con todo.
 
 **Pasos:**
 1. Abre: **[SOLUCION-FINAL.md](SOLUCION-FINAL.md)**
 2. Sigue los 8 pasos
 3. ✅ Listo
+
+**Por qué Supabase:**
+- ✅ Ya tiene 18 tablas con datos
+- ✅ 500 MB de espacio
+- ✅ Mejor panel de administración
+- ✅ Solo necesitas configurar el pooler
 
 **Archivos de ayuda:**
 - [CHECKLIST-SUPABASE.md](CHECKLIST-SUPABASE.md) - Lista de verificación
@@ -23,22 +34,23 @@ Tu base de datos está en Supabase con 18 tablas y datos, pero Render no puede c
 
 ---
 
-### ⚡ Camino 2: Tengo prisa, quiero la solución más rápida
+### ⚡ Camino 2: Investigar qué pasó con Render (5 min)
+
+Si quieres saber qué pasó con tu base de datos de Render:
 
 **Pasos:**
-1. Ve a: https://dashboard.render.com
-2. Busca "ecg-digital-city" → "Environment"
-3. Cambia estas variables:
-   ```
-   DB_HOST = dpg-d6kmk9dm5p6s73dut5f0-a.oregon-postgres.render.com
-   DB_PORT = 5432
-   DB_USER = ecg_user
-   DB_PASSWORD = KeIeMc0m9GFiTIcDXc9xOIjvGO4z1Gt8
-   DB_NAME = ecg_digital_city
-   ```
-4. Guarda → Espera 3 min → ✅ Listo
+1. Lee: **[QUE-PASO-CON-RENDER.md](QUE-PASO-CON-RENDER.md)**
+2. Ve a: https://dashboard.render.com
+3. Busca "PostgreSQL"
+4. Verifica el estado
 
-**Nota:** Esta configuración ya funcionaba antes.
+**Posibles causas:**
+- Base de datos eliminada
+- Base de datos suspendida
+- Credenciales cambiadas
+- Límite de almacenamiento
+
+**Nota:** Después de investigar, probablemente terminarás usando Supabase de todos modos.
 
 ---
 

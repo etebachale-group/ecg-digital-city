@@ -1,65 +1,63 @@
-# 🚨 SOLUCIÓN DEFINITIVA
+# ✅ SOLUCIÓN: Nueva Base de Datos en Render
 
-## ❌ Problema Confirmado
+## 🎯 Plan
 
-Tanto Render PostgreSQL como Supabase fallan con error IPv6:
-```
-ENETUNREACH 2a05:d018:135e:16c3:3047:14d3:9365:c91f:5432
-```
+Crear una nueva base de datos PostgreSQL en Render (sin problemas de IPv6).
 
-**Causa:** Render solo puede conectarse por IPv4.
+**Tiempo:** 10 minutos
 
 ---
 
-## ✅ Solución: Nueva Base de Datos en Render (10 min)
+## ⚡ Pasos Rápidos
 
-Crear una nueva base de datos PostgreSQL en Render (mismo proveedor = sin problemas IPv6).
+### 1. Crear Base de Datos (3 min)
+- Ve a: https://dashboard.render.com
+- Clic en **"New +"** → **"PostgreSQL"**
+- Configuración:
+  ```
+  Name: ecg-digital-city-db
+  Database: ecg_digital_city
+  User: ecg_user
+  Region: Oregon
+  Plan: Free
+  ```
+- Clic en **"Create Database"**
+- Espera 2-3 minutos
 
-### Pasos Rápidos:
+### 2. Copiar Credenciales (1 min)
+- Cuando esté lista, copia:
+  - Host (ej: `dpg-xxxxx-a.oregon-postgres.render.com`)
+  - Password
 
-1. **Crear base de datos:**
-   - Ve a: https://dashboard.render.com
-   - Clic en **"New +"** → **"PostgreSQL"**
-   - Configuración:
-     ```
-     Name: ecg-digital-city-db
-     Database: ecg_digital_city
-     User: ecg_user
-     Region: Oregon
-     Plan: Free
-     ```
-   - Clic en **"Create Database"**
-   - Espera 2-3 minutos
+### 3. Actualizar Web Service (2 min)
+- Busca "ecg-digital-city" → "Environment"
+- Actualiza las 5 variables con las nuevas credenciales
+- Guarda y espera 3 minutos
 
-2. **Copiar credenciales:**
-   - Cuando esté lista, copia las credenciales (Host, Password)
+### 4. Cargar Datos (2 min)
+- Desde tu máquina: `cd backend/scripts && node reload-database.js`
+- O usa SQL Editor en Render con `reset-and-reload-database.sql`
 
-3. **Actualizar Web Service:**
-   - Busca "ecg-digital-city" → "Environment"
-   - Actualiza las 5 variables con las nuevas credenciales
-   - Guarda y espera 3 minutos
-
-4. **Cargar datos:**
-   - Desde tu máquina: `cd backend/scripts && node reload-database.js`
-   - O usa SQL Editor en Render con el archivo `reset-and-reload-database.sql`
-
-5. **Verificar:** https://ecg-digital-city.onrender.com
+### 5. Verificar
+- Ve a: https://ecg-digital-city.onrender.com
+- Registra un usuario de prueba
+- ✅ ¡Listo!
 
 ---
 
 ## 📚 Guía Completa
 
-**[SOLUCION-DEFINITIVA-RENDER.md](SOLUCION-DEFINITIVA-RENDER.md)** ⭐ Guía paso a paso detallada
+**[GUIA-RAPIDA-RENDER-DB.md](GUIA-RAPIDA-RENDER-DB.md)** ⭐ Paso a paso detallado
 
 ---
 
-## 🎯 Por Qué Esta Solución Funciona
+## ✅ Ventajas
 
-- ✅ Mismo proveedor (Render) = Sin IPv6
-- ✅ Misma región = Más rápido
-- ✅ Gratis
-- ✅ Simple de configurar
+- Sin problemas de IPv6
+- Mismo proveedor (Render)
+- Gratis
+- Simple y rápido
 
 ---
 
-**Tiempo total:** 10 minutos hasta que funcione.
+**Siguiente paso:** Abre https://dashboard.render.com y crea la base de datos.

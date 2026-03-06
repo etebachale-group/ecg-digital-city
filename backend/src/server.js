@@ -85,13 +85,45 @@ app.use('/api/events', eventRoutes);
 app.use('/api/objects', interactiveObjectRoutes);
 
 // Ruta de health check
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV
-  });
+app.get('/health', async (req, res) => {
+  try {
+    const { sequelize } = require('./config/database')
+    const District = require('./models/District')
+    const Achievement = require('./models/Achievement')
+    const User = require('./models/User')
+    
+    // Verificar conexión a BD
+    await sequelize.authenticate()
+    
+    // Contar registros críticos
+    const [districtCount, achievementCount, userCount] = await Promise.all([
+      District.count().catch(() => 0),
+      Achievement.count().catch(() => 0),
+      User.count().catch(() => 0)
+    ])
+    
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV,
+      database: {
+        connected: true,
+        districts: districtCount,
+        achievements: achievementCount,
+        users: userCount
+      }
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      timestamp: new Date().toISOString(),
+      error: error.message,
+      database: {
+        connected: false
+      }
+    })
+  }
 });
 
 // Ruta raíz de API

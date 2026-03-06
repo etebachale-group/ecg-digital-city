@@ -1,6 +1,7 @@
 import { create } from 'zustand'
+import { API_URL as BASE_URL } from '../config/api'
 
-const API_URL = 'http://localhost:3000/api'
+const API_URL = `${BASE_URL}/api`
 
 export const useGamificationStore = create((set, get) => ({
   // Estado

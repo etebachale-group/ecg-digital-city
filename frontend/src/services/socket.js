@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client'
 import { useGameStore } from '../store/gameStore'
 import { useAuthStore } from '../store/authStore'
+import { SOCKET_URL } from '../config/api'
 
 let socket = null
 
@@ -19,7 +20,7 @@ export const initSocket = () => {
   }
 
   try {
-    socket = io('http://localhost:3000', {
+    socket = io(SOCKET_URL, {
       auth: { token },
       transports: ['websocket'],
       reconnection: true,

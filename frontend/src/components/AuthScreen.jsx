@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuthStore } from '../store/authStore'
+import { API_URL } from '../config/api'
 import './AuthScreen.css'
 
 function AuthScreen() {
@@ -26,7 +27,7 @@ function AuthScreen() {
         ? { email: formData.email, password: formData.password }
         : formData
 
-      const response = await fetch(`http://localhost:3000${endpoint}`, {
+      const response = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)

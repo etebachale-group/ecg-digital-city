@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useGameStore } from '../store/gameStore'
 import { getSocket } from '../services/socket'
+import { API_URL } from '../config/api'
 import './OfficeEditor.css'
 
 function OfficeEditor({ officeId, onClose }) {
@@ -45,7 +46,7 @@ function OfficeEditor({ officeId, onClose }) {
 
   const loadOfficeObjects = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/offices/${officeId}/objects`)
+      const response = await fetch(`${API_URL}/api/offices/${officeId}/objects`)
       const data = await response.json()
       setObjects(data)
     } catch (error) {

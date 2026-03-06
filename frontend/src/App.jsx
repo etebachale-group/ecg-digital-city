@@ -15,6 +15,7 @@ import { useGameStore } from './store/gameStore'
 import { useGamificationStore } from './store/gamificationStore'
 import { initSocket, disconnectSocket } from './services/socket'
 import AuthScreen from './components/AuthScreen'
+import { API_URL } from './config/api'
 
 function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
@@ -32,7 +33,7 @@ function App() {
     // Cargar distritos desde la API
     const loadDistricts = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/districts')
+        const response = await fetch(`${API_URL}/api/districts`)
         if (!response.ok) {
           throw new Error('Error al cargar distritos')
         }

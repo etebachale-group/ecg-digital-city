@@ -14,7 +14,8 @@
     "seed:gamification": "node src/utils/seedGamification.js",
     "seed:offices": "node scripts/seed-offices.js",
     "fix:production": "node scripts/fix-production.js",
-    "diagnose": "node scripts/fix-production.js diagnose"
+    "diagnose": "node scripts/fix-production.js diagnose",
+    "init:local": "node scripts/init-local-db.js"
   },
   "keywords": [
     "virtual-office",

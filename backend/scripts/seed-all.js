@@ -5,6 +5,9 @@
  * 3. Oficinas y Edificios
  */
 
+// Cargar variables de entorno PRIMERO
+require('dotenv').config();
+
 const { seedDistricts } = require('../src/utils/seedDistricts')
 const { seedGamification } = require('../src/utils/seedGamification')
 const { seedOffices } = require('./seed-offices')

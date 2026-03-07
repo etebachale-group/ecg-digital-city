@@ -21,10 +21,13 @@ async function seedOffices() {
     // Obtener o crear usuario admin para ser owner
     let adminUser = await User.findOne({ where: { email: 'admin@ecg.com' } })
     if (!adminUser) {
+      const bcrypt = require('bcryptjs')
+      const hashedPassword = await bcrypt.hash('admin123', 10)
+      
       adminUser = await User.create({
         username: 'admin',
         email: 'admin@ecg.com',
-        password: 'admin123', // En producción usar hash
+        passwordHash: hashedPassword,
         role: 'admin'
       })
       console.log('✅ Usuario admin creado')

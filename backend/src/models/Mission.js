@@ -7,7 +7,7 @@ const Mission = sequelize.define('Mission', {
     primaryKey: true,
     autoIncrement: true
   },
-  title: {
+  name: {
     type: DataTypes.STRING(200),
     allowNull: false
   },
@@ -17,23 +17,18 @@ const Mission = sequelize.define('Mission', {
   },
   missionType: {
     type: DataTypes.STRING(50),
-    allowNull: false
+    allowNull: false,
+    field: 'mission_type'
   },
-  difficulty: {
-    type: DataTypes.ENUM('easy', 'medium', 'hard'),
-    defaultValue: 'easy'
+  targetValue: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    field: 'target_value'
   },
   xpReward: {
     type: DataTypes.INTEGER,
-    defaultValue: 50
-  },
-  requirementType: {
-    type: DataTypes.STRING(50),
-    allowNull: false
-  },
-  requirementValue: {
-    type: DataTypes.INTEGER,
-    allowNull: false
+    defaultValue: 0,
+    field: 'xp_reward'
   },
   isDaily: {
     type: DataTypes.BOOLEAN,

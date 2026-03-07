@@ -160,116 +160,96 @@ const achievements = [
 const missions = [
   // Misiones diarias fáciles
   {
-    title: 'Saluda a 3 personas',
+    name: 'Saluda a 3 personas',
     description: 'Envía mensajes a 3 usuarios diferentes',
     missionType: 'social',
-    difficulty: 'easy',
+    targetValue: 3,
     xpReward: 50,
-    requirementType: 'send_messages',
-    requirementValue: 3,
     isDaily: true,
     isActive: true
   },
   {
-    title: 'Explora un distrito',
+    name: 'Explora un distrito',
     description: 'Visita cualquier distrito de la ciudad',
     missionType: 'exploration',
-    difficulty: 'easy',
+    targetValue: 1,
     xpReward: 30,
-    requirementType: 'visit_district',
-    requirementValue: 1,
     isDaily: true,
     isActive: true
   },
   {
-    title: 'Visita 2 oficinas',
+    name: 'Visita 2 oficinas',
     description: 'Entra a 2 oficinas diferentes',
     missionType: 'exploration',
-    difficulty: 'easy',
+    targetValue: 2,
     xpReward: 40,
-    requirementType: 'visit_offices',
-    requirementValue: 2,
     isDaily: true,
     isActive: true
   },
   
   // Misiones diarias medias
   {
-    title: 'Conversación activa',
+    name: 'Conversación activa',
     description: 'Envía 10 mensajes en el chat',
     missionType: 'social',
-    difficulty: 'medium',
+    targetValue: 10,
     xpReward: 100,
-    requirementType: 'send_messages',
-    requirementValue: 10,
     isDaily: true,
     isActive: true
   },
   {
-    title: 'Teletransportate 5 veces',
+    name: 'Teletransportate 5 veces',
     description: 'Usa el sistema de teletransporte 5 veces',
     missionType: 'exploration',
-    difficulty: 'medium',
+    targetValue: 5,
     xpReward: 80,
-    requirementType: 'teleport',
-    requirementValue: 5,
     isDaily: true,
     isActive: true
   },
   {
-    title: 'Edita tu oficina',
+    name: 'Edita tu oficina',
     description: 'Coloca 5 objetos en una oficina',
     missionType: 'business',
-    difficulty: 'medium',
+    targetValue: 5,
     xpReward: 120,
-    requirementType: 'place_objects',
-    requirementValue: 5,
     isDaily: true,
     isActive: true
   },
   
   // Misiones semanales
   {
-    title: 'Explorador de la semana',
+    name: 'Explorador de la semana',
     description: 'Visita los 4 distritos',
     missionType: 'exploration',
-    difficulty: 'hard',
+    targetValue: 4,
     xpReward: 200,
-    requirementType: 'visit_all_districts',
-    requirementValue: 4,
     isDaily: false,
     isActive: true
   },
   {
-    title: 'Socializar',
+    name: 'Socializar',
     description: 'Habla con 10 usuarios diferentes',
     missionType: 'social',
-    difficulty: 'hard',
+    targetValue: 10,
     xpReward: 250,
-    requirementType: 'unique_conversations',
-    requirementValue: 10,
     isDaily: false,
     isActive: true
   },
   {
-    title: 'Asiste a un evento',
+    name: 'Asiste a un evento',
     description: 'Participa en cualquier evento de la semana',
     missionType: 'events',
-    difficulty: 'medium',
+    targetValue: 1,
     xpReward: 150,
-    requirementType: 'attend_event',
-    requirementValue: 1,
     isDaily: false,
     isActive: true
   },
   {
-    title: 'Empresario activo',
+    name: 'Empresario activo',
     description: 'Crea o edita una oficina',
     missionType: 'business',
-    difficulty: 'medium',
+    targetValue: 1,
     xpReward: 180,
-    requirementType: 'office_activity',
-    requirementValue: 1,
     isDaily: false,
     isActive: true
   }
@@ -294,14 +274,14 @@ async function seedGamification() {
     // Seed missions
     for (const missionData of missions) {
       const [mission, created] = await Mission.findOrCreate({
-        where: { title: missionData.title },
+        where: { name: missionData.name },
         defaults: missionData
       })
       
       if (created) {
-        logger.info(`✅ Misión creada: ${mission.title}`)
+        logger.info(`✅ Misión creada: ${mission.name}`)
       } else {
-        logger.info(`ℹ️  Misión ya existe: ${mission.title}`)
+        logger.info(`ℹ️  Misión ya existe: ${mission.name}`)
       }
     }
     

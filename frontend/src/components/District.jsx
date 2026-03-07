@@ -41,11 +41,15 @@ function District({ districtData, onPlayerRef }) {
     }
   }
 
+  // Default position and size if not provided
+  const position = districtData.position || { x: 0, z: 0 }
+  const size = districtData.size || { width: 100, depth: 100 }
+
   return (
-    <group position={[districtData.position.x, 0, districtData.position.z]}>
+    <group position={[position.x, 0, position.z]}>
       {/* Suelo del distrito */}
       <Plane
-        args={[districtData.size.width, districtData.size.depth]}
+        args={[size.width, size.depth]}
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, 0, 0]}
         receiveShadow

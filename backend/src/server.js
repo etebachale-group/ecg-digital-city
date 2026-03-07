@@ -189,39 +189,43 @@ async function startServer() {
     await initializeDatabase();
     logger.info('✅ Base de datos conectada');
     
-    // Ejecutar migraciones automáticamente en producción
-    if (process.env.NODE_ENV === 'production' && process.env.AUTO_MIGRATE !== 'false' && false) { // DESHABILITADO TEMPORALMENTE
-      logger.info('🔄 Ejecutando migraciones automáticas...');
+    // En producción, ejecutar seeds automáticamente si la BD está vacía
+    if (process.env.NODE_ENV === 'production') {
+      logger.info('🔍 Verificando si necesita seed inicial...');
       try {
-        const { runMigrations } = require('../scripts/migrate');
-        const result = await runMigrations();
-        logger.info('✅ Migraciones completadas');
+        const District = require('./models/District');
+        const districtCount = await District.count();
         
-        // Seed de distritos DESPUÉS de las migraciones (solo si fueron exitosas)
-        if (result.success) {
-          logger.info('🔄 Ejecutando seed de distritos...');
-          try {
-            const { seedDistricts } = require('./utils/seedDistricts');
-            await seedDistricts();
-            logger.info('✅ Seed de distritos completado');
-          } catch (seedError) {
-            logger.warn('⚠️  Error en seed de distritos:', seedError.message);
-          }
+        if (districtCount === 0) {
+          logger.info('🌱 Base de datos vacía, ejecutando seed completo...');
+          
+          // 1. Seed de distritos
+          logger.info('📍 Creando distritos...');
+          const { seedDistricts } = require('./utils/seedDistricts');
+          await seedDistricts();
+          logger.info('✅ Distritos creados');
+          
+          // 2. Seed de gamificación
+          logger.info('🎮 Creando sistema de gamificación...');
+          const { seedGamification } = require('./utils/seedGamification');
+          await seedGamification();
+          logger.info('✅ Gamificación creada');
+          
+          // 3. Seed de oficinas
+          logger.info('🏢 Creando oficinas...');
+          const { seedOffices } = require('../scripts/seed-offices');
+          await seedOffices();
+          logger.info('✅ Oficinas creadas');
+          
+          logger.info('🎉 Seed completo exitoso!');
+        } else {
+          logger.info(`✅ Base de datos ya tiene datos (${districtCount} distritos)`);
         }
-      } catch (migrationError) {
-        logger.error('❌ Error en migraciones:', migrationError.message);
-        throw migrationError; // Detener si las migraciones fallan
+      } catch (seedError) {
+        logger.error('❌ Error en seed automático:', seedError.message);
+        logger.error('Stack:', seedError.stack);
+        // No detener el servidor, solo advertir
       }
-    }
-    
-    // Seed de gamificación (solo si llegamos aquí)
-    logger.info('🔄 Ejecutando seed de gamificación...');
-    try {
-      const { seedGamification } = require('./utils/seedGamification');
-      await seedGamification();
-      logger.info('✅ Seed de gamificación completado');
-    } catch (seedError) {
-      logger.warn('⚠️  Error en seed de gamificación:', seedError.message);
     }
 
     // Conectar a Redis (opcional)

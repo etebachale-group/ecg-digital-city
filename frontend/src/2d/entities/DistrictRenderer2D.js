@@ -1,9 +1,11 @@
 import * as PIXI from 'pixi.js'
 import { Portal2D } from './Portal2D'
+import { API_URL } from '../../config/api'
 
 /**
  * DistrictRenderer2D - Renders 2D district environments
  * Uses procedural textures for Render Free optimization
+ * Now loads real offices from API!
  */
 export class DistrictRenderer2D {
   constructor(config) {
@@ -14,6 +16,7 @@ export class DistrictRenderer2D {
     // Rendered objects
     this.groundSprite = null
     this.buildings = []
+    this.offices = [] // Real offices from API
     this.decorations = []
     this.doors = []
     this.portals = []
@@ -28,8 +31,8 @@ export class DistrictRenderer2D {
     // Render ground
     this._renderGround()
     
-    // Render buildings and objects
-    this._renderBuildings()
+    // Load and render real offices from API
+    await this._loadOffices()
     
     // Render decorations
     this._renderDecorations()
@@ -38,6 +41,179 @@ export class DistrictRenderer2D {
     this._renderPortals()
     
     console.log('✅ District loaded')
+  }
+
+  /**
+   * Load offices from API
+   * @private
+   */
+  async _loadOffices() {
+    if (!this.districtData?.id) {
+      console.warn('No district ID, skipping office load')
+      return
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/offices/district/${this.districtData.id}`)
+      if (!response.ok) {
+        throw new Error('Failed to load offices')
+      }
+
+      const offices = await response.json()
+      console.log(`📍 Loaded ${offices.length} offices for district ${this.districtData.name}`)
+
+      // Render each office as a building
+      offices.forEach(office => {
+        this._renderOfficeBuilding(office)
+      })
+    } catch (error) {
+      console.error('Error loading offices:', error)
+      // Fallback to procedural buildings
+      this._renderBuildings()
+    }
+  }
+
+  /**
+   * Render an office as a building
+   * @private
+   */
+  _renderOfficeBuilding(office) {
+    const position = office.position || { x: 0, y: 0 }
+    const size = office.size || { width: 20, height: 20 }
+    
+    // Convert hex color to number
+    const primaryColor = parseInt(office.primaryColor?.replace('#', '0x') || '0x3498db')
+    const secondaryColor = parseInt(office.secondaryColor?.replace('#', '0x') || '0x2c3e50')
+    
+    const buildingSprite = this._createOfficeBuildingSprite({
+      office,
+      x: position.x,
+      y: position.y,
+      width: size.width,
+      height: size.depth || size.height,
+      primaryColor,
+      secondaryColor
+    })
+    
+    buildingSprite.position.set(position.x, position.y)
+    buildingSprite.zIndex = position.y // Depth sorting
+    
+    // Add company name label
+    const label = this._createOfficeLabel(office)
+    label.position.set(size.width / 2, -15)
+    buildingSprite.addChild(label)
+    
+    this.container.addChild(buildingSprite)
+    this.offices.push({ sprite: buildingSprite, data: office })
+    
+    // Add to collision system
+    if (this.collisionSystem) {
+      this.collisionSystem.addObstacle({
+        x: position.x,
+        y: position.y,
+        width: size.width,
+        height: size.depth || size.height
+      })
+      
+      // Add door
+      this.collisionSystem.addDoor({
+        id: `door-office-${office.id}`,
+        x: position.x + size.width / 2 - 6,
+        y: position.y + (size.depth || size.height) - 12,
+        width: 12,
+        height: 12,
+        isOpen: false,
+        officeId: office.id
+      })
+    }
+  }
+
+  /**
+   * Create office building sprite
+   * @private
+   */
+  _createOfficeBuildingSprite(config) {
+    const { office, x, y, width, height, primaryColor, secondaryColor } = config
+    const graphics = new PIXI.Graphics()
+    
+    // Building body
+    graphics.beginFill(primaryColor)
+    graphics.drawRect(0, 0, width, height)
+    graphics.endFill()
+    
+    // Roof
+    graphics.beginFill(secondaryColor)
+    graphics.moveTo(0, 0)
+    graphics.lineTo(width / 2, -10)
+    graphics.lineTo(width, 0)
+    graphics.lineTo(0, 0)
+    graphics.endFill()
+    
+    // Windows
+    const windowSize = 3
+    const windowSpacing = 6
+    const windowColor = office.isPublic ? 0xFFEB3B : 0xFFA726
+    
+    for (let wx = windowSpacing; wx < width - windowSpacing; wx += windowSpacing) {
+      for (let wy = windowSpacing; wy < height - windowSpacing; wy += windowSpacing) {
+        graphics.beginFill(windowColor, 0.8)
+        graphics.drawRect(wx, wy, windowSize, windowSize)
+        graphics.endFill()
+      }
+    }
+    
+    // Door
+    graphics.beginFill(secondaryColor)
+    graphics.drawRect(width / 2 - 6, height - 12, 12, 12)
+    graphics.endFill()
+    
+    // Door handle
+    graphics.beginFill(0xFFD700)
+    graphics.drawCircle(width / 2 + 3, height - 6, 1)
+    graphics.endFill()
+    
+    // Outline
+    graphics.lineStyle(2, 0x000000, 0.3)
+    graphics.drawRect(0, 0, width, height)
+    
+    // Special marker for ETEBA CHALE GROUP (central office)
+    if (office.company?.name === 'ETEBA CHALE GROUP') {
+      // Add crown/star on top
+      graphics.lineStyle(0)
+      graphics.beginFill(0xFFD700)
+      graphics.drawStar(width / 2, -15, 5, 8, 4)
+      graphics.endFill()
+      
+      // Add glow effect
+      graphics.lineStyle(3, 0xFFD700, 0.3)
+      graphics.drawRect(0, 0, width, height)
+    }
+    
+    const container = new PIXI.Container()
+    container.addChild(graphics)
+    
+    return container
+  }
+
+  /**
+   * Create office label
+   * @private
+   */
+  _createOfficeLabel(office) {
+    const companyName = office.company?.name || 'Office'
+    
+    const label = new PIXI.Text(companyName, {
+      fontFamily: 'Arial',
+      fontSize: 10,
+      fill: 0xffffff,
+      stroke: 0x000000,
+      strokeThickness: 3,
+      align: 'center'
+    })
+    
+    label.anchor.set(0.5, 1)
+    
+    return label
   }
 
   /**
@@ -457,10 +633,12 @@ export class DistrictRenderer2D {
     }
     
     this.buildings.forEach(b => b.destroy({ children: true }))
+    this.offices.forEach(o => o.sprite.destroy({ children: true }))
     this.decorations.forEach(d => d.destroy({ children: true }))
     this.portals.forEach(p => p.destroy())
     
     this.buildings = []
+    this.offices = []
     this.decorations = []
     this.doors = []
     this.portals = []

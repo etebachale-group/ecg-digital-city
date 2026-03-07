@@ -8,7 +8,11 @@
     "dev": "nodemon src/server.js",
     "test": "jest",
     "migrate": "node scripts/migrate.js",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "seed:all": "node scripts/seed-all.js",
+    "seed:districts": "node src/utils/seedDistricts.js",
+    "seed:gamification": "node src/utils/seedGamification.js",
+    "seed:offices": "node scripts/seed-offices.js"
   },
   "keywords": [
     "virtual-office",

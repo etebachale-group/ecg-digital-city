@@ -2,6 +2,8 @@ import * as PIXI from 'pixi.js'
 import { Avatar2D } from '../entities/Avatar2D'
 import { DistrictRenderer2D } from '../entities/DistrictRenderer2D'
 import { CollisionSystem2D } from '../systems/CollisionSystem2D'
+import { InteractionHint2D } from '../ui/InteractionHint2D'
+import { ConnectionIndicator } from '../ui/ConnectionIndicator'
 
 /**
  * SceneManager - Manages the game scene, districts, and all visual elements
@@ -45,6 +47,16 @@ export class SceneManager {
         maxY: 90
       }
     })
+    
+    // Interaction hint
+    this.interactionHint = new InteractionHint2D({
+      message: 'Press E'
+    })
+    this.uiContainer.addChild(this.interactionHint)
+    
+    // Connection indicator
+    this.connectionIndicator = new ConnectionIndicator()
+    this.uiContainer.addChild(this.connectionIndicator)
   }
 
   /**
@@ -159,6 +171,21 @@ export class SceneManager {
       avatar.update(delta)
     })
     
+    // Update district renderer (portals animation)
+    if (this.districtRenderer) {
+      this.districtRenderer.update(delta)
+    }
+    
+    // Update interaction hint
+    if (this.interactionHint) {
+      this.interactionHint.update(delta)
+    }
+    
+    // Update connection indicator
+    if (this.connectionIndicator) {
+      this.connectionIndicator.update(delta)
+    }
+    
     // Depth sorting (Y-axis sorting for 2D)
     this._sortByDepth()
   }
@@ -216,6 +243,51 @@ export class SceneManager {
     }
     
     console.log('✅ District loaded successfully')
+  }
+
+  /**
+   * Get nearby portal
+   * @param {Object} position 
+   * @param {number} range 
+   * @returns {Object|null}
+   */
+  getNearbyPortal(position, range) {
+    if (this.districtRenderer) {
+      return this.districtRenderer.getNearbyPortal(position, range)
+    }
+    return null
+  }
+
+  /**
+   * Show interaction hint at world position
+   * @param {Object} worldPos 
+   * @param {string} message 
+   */
+  showInteractionHint(worldPos, message) {
+    if (this.interactionHint && this.cameraSystem) {
+      const screenPos = this.cameraSystem.worldToScreen(worldPos)
+      this.interactionHint.position.set(screenPos.x, screenPos.y - 40)
+      this.interactionHint.show(message)
+    }
+  }
+
+  /**
+   * Hide interaction hint
+   */
+  hideInteractionHint() {
+    if (this.interactionHint) {
+      this.interactionHint.hide()
+    }
+  }
+
+  /**
+   * Set connection status
+   * @param {string} status - 'online', 'offline', 'reconnecting'
+   */
+  setConnectionStatus(status) {
+    if (this.connectionIndicator) {
+      this.connectionIndicator.setStatus(status)
+    }
   }
 
   /**

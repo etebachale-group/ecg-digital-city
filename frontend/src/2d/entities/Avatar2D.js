@@ -2,6 +2,8 @@ import * as PIXI from 'pixi.js'
 import { Vector2D } from '../utils/Vector2D'
 import { AvatarSpriteGenerator } from '../utils/AvatarSpriteGenerator'
 import { AnimationSystem } from '../systems/AnimationSystem'
+import { ChatBubble2D } from '../ui/ChatBubble2D'
+import { validateAvatarData, validateUsername, sanitizeChatMessage } from '../utils/DataValidator'
 
 /**
  * Avatar2D - 2D avatar representation with sprite-based rendering
@@ -12,9 +14,9 @@ export class Avatar2D extends PIXI.Container {
     super()
     
     this.id = config.id
-    this.username = config.username
+    this.username = validateUsername(config.username)
     this.isPlayer = config.isPlayer || false
-    this.avatarData = config.avatarData || {}
+    this.avatarData = validateAvatarData(config.avatarData)
     
     // Position and movement
     this.position.set(config.position.x, config.position.y)
@@ -30,6 +32,9 @@ export class Avatar2D extends PIXI.Container {
     
     // For smooth interpolation
     this.targetPosition = new Vector2D(config.position.x, config.position.y)
+    
+    // Chat bubble
+    this.chatBubble = null
     
     // Generate sprite textures
     this._initializeSprite()
@@ -104,6 +109,14 @@ export class Avatar2D extends PIXI.Container {
     
     // Update animation
     AnimationSystem.updateAvatarAnimation(this, delta)
+    
+    // Update chat bubble
+    if (this.chatBubble) {
+      const shouldRemove = this.chatBubble.update(delta)
+      if (shouldRemove) {
+        this.removeChatBubble()
+      }
+    }
   }
 
   /**
@@ -127,7 +140,7 @@ export class Avatar2D extends PIXI.Container {
    * @param {Object} customization 
    */
   setCustomization(customization) {
-    this.avatarData = customization
+    this.avatarData = validateAvatarData(customization)
     
     // Remove old sprite
     if (this.sprite) {
@@ -162,9 +175,48 @@ export class Avatar2D extends PIXI.Container {
   }
 
   /**
+   * Show chat message above avatar
+   * @param {string} message 
+   */
+  showChatMessage(message) {
+    // Sanitize message to prevent XSS
+    const sanitizedMessage = sanitizeChatMessage(message)
+    
+    if (!sanitizedMessage) {
+      return // Don't show empty messages
+    }
+    
+    // Remove existing bubble
+    this.removeChatBubble()
+    
+    // Create new bubble
+    this.chatBubble = new ChatBubble2D({
+      message: sanitizedMessage,
+      maxWidth: 200,
+      lifetime: 5000
+    })
+    
+    this.addChild(this.chatBubble)
+  }
+
+  /**
+   * Remove chat bubble
+   */
+  removeChatBubble() {
+    if (this.chatBubble) {
+      this.removeChild(this.chatBubble)
+      this.chatBubble.destroy()
+      this.chatBubble = null
+    }
+  }
+
+  /**
    * Clean up resources
    */
   destroy() {
+    // Remove chat bubble
+    this.removeChatBubble()
+    
     // Destroy textures
     if (this.allTextures) {
       this.allTextures.forEach(texture => {

@@ -5,6 +5,7 @@ import { CameraSystem2D } from './systems/CameraSystem2D'
 import { InputManager } from './systems/InputManager'
 import { NetworkSync } from './systems/NetworkSync'
 import { Vector2D } from './utils/Vector2D'
+import { setupWebGLContextLossHandler, setupGlobalErrorHandlers } from './utils/ErrorHandler'
 import UI from '../components/UI'
 import Toast from '../components/Toast'
 import XPBar from '../components/XPBar'
@@ -47,7 +48,62 @@ function App2D() {
   const RUN_SPEED = 6
   const WORLD_BOUNDS = { minX: -90, maxX: 90, minY: -90, maxY: 90 }
 
+  // Handle district transition
+  const handleDistrictTransition = async (portal) => {
+    if (!sceneManagerRef.current || !playerAvatarRef.current) return
+    
+    // Find target district
+    const targetDistrict = districts.find(d => d.slug === portal.targetDistrict || d.name === portal.targetDistrict)
+    
+    if (!targetDistrict) {
+      useGameStore.getState().showToast(
+        `Distrito "${portal.targetDistrict}" no encontrado`,
+        'error'
+      )
+      return
+    }
+    
+    // Show loading toast
+    useGameStore.getState().showToast(
+      `🌀 Viajando a ${targetDistrict.name}...`,
+      'info'
+    )
+    
+    try {
+      // Load new district
+      await sceneManagerRef.current.loadDistrict(targetDistrict)
+      
+      // Move player to spawn point
+      const spawnPoint = portal.spawnPoint || { x: 0, y: 0 }
+      playerAvatarRef.current.position.set(spawnPoint.x, spawnPoint.y)
+      playerAvatarRef.current.targetPosition.set(spawnPoint.x, spawnPoint.y)
+      
+      // Update game store
+      useGameStore.getState().setDistrict(targetDistrict.slug)
+      
+      // Success toast
+      useGameStore.getState().showToast(
+        `✅ Llegaste a ${targetDistrict.name}`,
+        'success'
+      )
+    } catch (error) {
+      console.error('Error loading district:', error)
+      useGameStore.getState().showToast(
+        'Error al cambiar de distrito',
+        'error'
+      )
+    }
+  }
+
   useEffect(() => {
+    // Setup global error handlers
+    setupGlobalErrorHandlers()
+    
+    // Expose showToast to window for error handler
+    window.showToast = (message, type) => {
+      useGameStore.getState().showToast(message, type)
+    }
+    
     // Load districts
     const loadDistricts = async () => {
       try {
@@ -105,6 +161,12 @@ function App2D() {
 
   const handlePixiReady = (app) => {
     console.log('🎮 Pixi.js 2D initialized!')
+    
+    // Setup WebGL context loss handler
+    setupWebGLContextLossHandler(app, () => {
+      console.log('Rebuilding scene after context restore...')
+      // Scene will be rebuilt automatically on next frame
+    })
     
     // Get active district
     const activeDistrict = districts.find(d => d.slug === currentDistrict) || districts[0]
@@ -171,6 +233,7 @@ function App2D() {
       socket.on('world:user-joined', (data) => networkSync.onPlayerJoined(data))
       socket.on('world:user-moved', (data) => networkSync.onPlayerMoved(data))
       socket.on('world:user-left', (data) => networkSync.onPlayerLeft(data))
+      socket.on('chat:message', (data) => networkSync.onChatMessage(data))
       socket.on('disconnect', () => networkSync.onDisconnect())
       socket.on('connect', () => networkSync.onReconnect())
     }
@@ -231,14 +294,47 @@ function App2D() {
             playerAvatarRef.current.position.x,
             playerAvatarRef.current.position.y
           )
-          const nearbyDoor = sceneManager.collisionSystem.getNearbyDoor(playerPos, 15)
           
+          // Check for doors
+          const nearbyDoor = sceneManager.collisionSystem.getNearbyDoor(playerPos, 15)
           if (nearbyDoor) {
             sceneManager.collisionSystem.toggleDoor(nearbyDoor.id)
             useGameStore.getState().showToast(
               nearbyDoor.isOpen ? '🚪 Puerta abierta' : '🚪 Puerta cerrada',
               'info'
             )
+          }
+          
+          // Check for portals
+          const nearbyPortal = sceneManager.getNearbyPortal(playerPos, 25)
+          if (nearbyPortal) {
+            handleDistrictTransition(nearbyPortal)
+          }
+        }
+        
+        // Show interaction hints
+        if (playerAvatarRef.current && sceneManager) {
+          const playerPos = new Vector2D(
+            playerAvatarRef.current.position.x,
+            playerAvatarRef.current.position.y
+          )
+          
+          // Check for nearby interactables
+          const nearbyDoor = sceneManager.collisionSystem?.getNearbyDoor(playerPos, 15)
+          const nearbyPortal = sceneManager.getNearbyPortal(playerPos, 25)
+          
+          if (nearbyPortal) {
+            sceneManager.showInteractionHint(
+              { x: nearbyPortal.position.x, y: nearbyPortal.position.y },
+              `Press E to travel to ${nearbyPortal.targetDistrict}`
+            )
+          } else if (nearbyDoor) {
+            sceneManager.showInteractionHint(
+              playerPos,
+              `Press E to ${nearbyDoor.isOpen ? 'close' : 'open'} door`
+            )
+          } else {
+            sceneManager.hideInteractionHint()
           }
         }
       }

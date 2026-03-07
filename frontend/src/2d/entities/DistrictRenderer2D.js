@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js'
+import { Portal2D } from './Portal2D'
 
 /**
  * DistrictRenderer2D - Renders 2D district environments
@@ -15,6 +16,7 @@ export class DistrictRenderer2D {
     this.buildings = []
     this.decorations = []
     this.doors = []
+    this.portals = []
   }
 
   /**
@@ -31,6 +33,9 @@ export class DistrictRenderer2D {
     
     // Render decorations
     this._renderDecorations()
+    
+    // Render portals
+    this._renderPortals()
     
     console.log('✅ District loaded')
   }
@@ -372,6 +377,78 @@ export class DistrictRenderer2D {
   }
 
   /**
+   * Render portals for district transitions
+   * @private
+   */
+  _renderPortals() {
+    // Get portals from district data or create default ones
+    const portals = this.districtData?.portals || this._generateDefaultPortals()
+    
+    portals.forEach(portalData => {
+      const portal = new Portal2D({
+        id: portalData.id,
+        x: portalData.x,
+        y: portalData.y,
+        width: portalData.width || 40,
+        height: portalData.height || 60,
+        targetDistrict: portalData.targetDistrict,
+        spawnPoint: portalData.spawnPoint
+      })
+      
+      portal.zIndex = portalData.y // Depth sorting
+      
+      this.container.addChild(portal)
+      this.portals.push(portal)
+    })
+  }
+
+  /**
+   * Generate default portals if none provided
+   * @private
+   */
+  _generateDefaultPortals() {
+    return [
+      {
+        id: 'portal-north',
+        x: 0,
+        y: -80,
+        targetDistrict: 'centro',
+        spawnPoint: { x: 0, y: 70 }
+      },
+      {
+        id: 'portal-south',
+        x: 0,
+        y: 80,
+        targetDistrict: 'parque',
+        spawnPoint: { x: 0, y: -70 }
+      }
+    ]
+  }
+
+  /**
+   * Update portals animation
+   * @param {number} delta 
+   */
+  update(delta) {
+    this.portals.forEach(portal => portal.update(delta))
+  }
+
+  /**
+   * Get nearby portal
+   * @param {Object} position 
+   * @param {number} range 
+   * @returns {Portal2D|null}
+   */
+  getNearbyPortal(position, range) {
+    for (const portal of this.portals) {
+      if (portal.isNear(position, range)) {
+        return portal
+      }
+    }
+    return null
+  }
+
+  /**
    * Clean up resources
    */
   destroy() {
@@ -381,9 +458,11 @@ export class DistrictRenderer2D {
     
     this.buildings.forEach(b => b.destroy({ children: true }))
     this.decorations.forEach(d => d.destroy({ children: true }))
+    this.portals.forEach(p => p.destroy())
     
     this.buildings = []
     this.decorations = []
     this.doors = []
+    this.portals = []
   }
 }

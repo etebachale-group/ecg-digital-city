@@ -116,6 +116,19 @@ export class NetworkSync {
   }
 
   /**
+   * Handle chat message event
+   * @param {Object} data 
+   */
+  onChatMessage(data) {
+    if (!this.sceneManager) return
+    
+    const avatar = this.sceneManager.avatars.get(data.userId)
+    if (avatar) {
+      avatar.showChatMessage(data.message)
+    }
+  }
+
+  /**
    * Handle player left event
    * @param {Object} data 
    */
@@ -158,6 +171,11 @@ export class NetworkSync {
     console.warn('🔌 Connection lost')
     this.isConnected = false
     
+    // Update connection indicator
+    if (this.sceneManager) {
+      this.sceneManager.setConnectionStatus('offline')
+    }
+    
     // Freeze all remote players
     if (this.sceneManager) {
       this.sceneManager.avatars.forEach((avatar, id) => {
@@ -175,8 +193,20 @@ export class NetworkSync {
     console.log('✅ Connection restored')
     this.isConnected = true
     
+    // Update connection indicator
+    if (this.sceneManager) {
+      this.sceneManager.setConnectionStatus('reconnecting')
+    }
+    
     // Send queued updates
     this._syncQueuedUpdates()
+    
+    // Set back to online after sync
+    setTimeout(() => {
+      if (this.sceneManager) {
+        this.sceneManager.setConnectionStatus('online')
+      }
+    }, 1000)
   }
 
   /**

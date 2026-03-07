@@ -289,10 +289,9 @@ function App2D() {
           }
         })
       }
-    }
-    
-    // Game loop
-    app.ticker.add((delta) => {
+      
+      // Game loop
+      app.ticker.add((delta) => {
       try {
         const deltaTime = delta / 60 // Convert to seconds
         

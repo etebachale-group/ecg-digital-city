@@ -16,8 +16,19 @@ import { useGamificationStore } from './store/gamificationStore'
 import { initSocket, disconnectSocket } from './services/socket'
 import AuthScreen from './components/AuthScreen'
 import { API_URL } from './config/api'
+import { getRenderMode } from './config/features'
+import App2D from './2d/App2D'
 
 function App() {
+  // Check render mode
+  const renderMode = getRenderMode()
+  
+  // If 2D mode, use App2D component
+  if (renderMode === '2d') {
+    return <App2D />
+  }
+  
+  // Otherwise, continue with 3D rendering below
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const user = useAuthStore((state) => state.user)
   const [districts, setDistricts] = useState([])

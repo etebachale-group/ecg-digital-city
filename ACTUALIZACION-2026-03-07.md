@@ -139,6 +139,78 @@ createGrid() {
 **Archivo modificado:**
 - `frontend/src/systems/NavigationMesh.js` - Agregada validación robusta
 
+### 4. Error 500 en Gamification Endpoints - UserProgress Schema Mismatch
+
+**Problema:** El modelo `UserProgress` no coincidía con el esquema real de la base de datos, causando errores 500 en todos los endpoints de gamificación.
+
+**Errores específicos:**
+- Modelo usaba `xp` pero DB tiene `current_xp` y `total_xp`
+- Modelo usaba `lastLogin` pero DB tiene `last_daily_login`
+- Modelo tenía campos que no existen en DB: `totalLogins`, `totalMessages`, `totalDistrictsVisited`, `totalEventsAttended`
+
+**Solución aplicada:**
+
+```javascript
+// backend/src/models/UserProgress.js
+{
+  currentXp: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+    field: 'current_xp'  // ✅ Mapeo correcto
+  },
+  totalXp: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+    field: 'total_xp'    // ✅ Mapeo correcto
+  },
+  lastDailyLogin: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+    field: 'last_daily_login'  // ✅ Mapeo correcto
+  },
+  // ✅ Virtual fields para compatibilidad
+  xp: {
+    type: DataTypes.VIRTUAL,
+    get() { return this.getDataValue('totalXp') || 0 },
+    set(value) { this.setDataValue('totalXp', value) }
+  },
+  lastLogin: {
+    type: DataTypes.VIRTUAL,
+    get() { return this.getDataValue('lastDailyLogin') },
+    set(value) { this.setDataValue('lastDailyLogin', value) }
+  }
+}
+```
+
+**Archivos modificados:**
+- `backend/src/models/UserProgress.js` - Modelo corregido con campos reales y virtuales
+- `backend/src/routes/gamification.js` - Actualizado para usar `totalXp`, `currentXp`, `lastDailyLogin`
+
+### 5. Error 500 en Missions Endpoints - Field References
+
+**Problema:** Las rutas de misiones referenciaban campos que no existen en el modelo actualizado.
+
+**Errores específicos:**
+- Ruta intentaba ordenar por `difficulty` (campo removido)
+- Ruta usaba `requirementValue` en lugar de `targetValue`
+
+**Solución aplicada:**
+
+```javascript
+// backend/src/routes/missions.js
+// ✅ Cambio 1: Ordenar por xpReward en lugar de difficulty
+order: [['xpReward', 'ASC'], ['id', 'ASC']]
+
+// ✅ Cambio 2: Usar targetValue en lugar de requirementValue
+if (progress >= userMission.mission.targetValue && !userMission.isCompleted) {
+  userMission.isCompleted = true
+  // ...
+}
+```
+
+**Archivo modificado:**
+- `backend/src/routes/missions.js` - Referencias corregidas
+
 ## Estado Actual
 
 ### Backend ✅
@@ -180,11 +252,13 @@ curl https://ecg-digital-city.onrender.com/api/missions/user/2
 ## Commits
 
 ```
+d9a69a6 - Fix: UserProgress model and gamification routes schema mismatch
 6959cbf - Fix: NavigationMesh invalid array length error
 b9a7c1d - Fix: Mission model schema mismatch and District position error
 ```
 
 **Total de cambios:**
-- 5 archivos modificados
-- Backend: Mission model y seed corregidos
+- 9 archivos modificados
+- Backend: Mission, UserProgress models y rutas corregidas
 - Frontend: District.jsx y NavigationMesh.js con validaciones robustas
+- Todos los errores 500 resueltos

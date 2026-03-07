@@ -7,6 +7,7 @@ import Leaderboard from './Leaderboard'
 import CameraIndicator from './CameraIndicator'
 import InteractionIndicators from './InteractionIndicators'
 import InteractionQueue from './InteractionQueue'
+import { getRenderMode, toggleRenderMode } from '../config/features'
 import './UI.css'
 
 function UI() {
@@ -70,6 +71,13 @@ function UI() {
         <div className="online-count">
           👥 {players.size + 1} online
         </div>
+        <button 
+          className="render-mode-btn" 
+          onClick={toggleRenderMode}
+          title="Cambiar entre 2D y 3D"
+        >
+          {getRenderMode() === '2d' ? '🎮 2D' : '🎲 3D'}
+        </button>
         <button className="dashboard-btn" onClick={() => setShowLeaderboard(true)}>
           🏆 Ranking
         </button>

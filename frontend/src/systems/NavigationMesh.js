@@ -7,8 +7,19 @@
 
 class NavigationMesh {
   constructor(worldBounds, cellSize = 0.5) {
-    this.worldBounds = worldBounds; // { minX, maxX, minZ, maxZ }
-    this.cellSize = cellSize;
+    // Handle both formats: { min, max } or { minX, maxX, minZ, maxZ }
+    if (worldBounds.min !== undefined && worldBounds.max !== undefined) {
+      this.worldBounds = {
+        minX: worldBounds.min,
+        maxX: worldBounds.max,
+        minZ: worldBounds.min,
+        maxZ: worldBounds.max
+      };
+    } else {
+      this.worldBounds = worldBounds;
+    }
+    
+    this.cellSize = Math.max(0.1, cellSize); // Ensure positive cellSize
     this.grid = null;
     this.width = 0;
     this.height = 0;
@@ -22,8 +33,19 @@ class NavigationMesh {
   createGrid() {
     const { minX, maxX, minZ, maxZ } = this.worldBounds;
     
-    this.width = Math.ceil((maxX - minX) / this.cellSize);
-    this.height = Math.ceil((maxZ - minZ) / this.cellSize);
+    // Validate bounds
+    if (minX >= maxX || minZ >= maxZ) {
+      console.error('Invalid world bounds:', this.worldBounds);
+      this.width = 100;
+      this.height = 100;
+    } else {
+      this.width = Math.ceil((maxX - minX) / this.cellSize);
+      this.height = Math.ceil((maxZ - minZ) / this.cellSize);
+    }
+    
+    // Clamp dimensions to reasonable values
+    this.width = Math.max(1, Math.min(this.width, 10000));
+    this.height = Math.max(1, Math.min(this.height, 10000));
     
     // Initialize grid with all cells walkable
     this.grid = Array(this.height).fill(null).map(() => 

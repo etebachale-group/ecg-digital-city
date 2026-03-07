@@ -20,6 +20,7 @@ export class InputManager {
     this.keyDownCallbacks = []
     this.keyUpCallbacks = []
     this.clickCallbacks = []
+    this.wheelCallbacks = []
     
     // Bind event handlers
     this._handleKeyDown = this._handleKeyDown.bind(this)
@@ -28,6 +29,7 @@ export class InputManager {
     this._handleMouseDown = this._handleMouseDown.bind(this)
     this._handleMouseUp = this._handleMouseUp.bind(this)
     this._handleClick = this._handleClick.bind(this)
+    this._handleWheel = this._handleWheel.bind(this)
     
     // Add event listeners
     this._addEventListeners()
@@ -42,6 +44,7 @@ export class InputManager {
       this.canvas.addEventListener('mousedown', this._handleMouseDown)
       this.canvas.addEventListener('mouseup', this._handleMouseUp)
       this.canvas.addEventListener('click', this._handleClick)
+      this.canvas.addEventListener('wheel', this._handleWheel, { passive: false })
       
       // Touch events for mobile
       this.canvas.addEventListener('touchstart', this._handleMouseDown)
@@ -89,6 +92,16 @@ export class InputManager {
   _handleClick(event) {
     const worldPos = this.getWorldMousePosition()
     this.clickCallbacks.forEach(callback => callback(worldPos))
+  }
+
+  _handleWheel(event) {
+    event.preventDefault()
+    
+    // Normalize wheel delta across browsers
+    const delta = Math.sign(event.deltaY) * -0.1
+    
+    // Notify callbacks with zoom delta
+    this.wheelCallbacks.forEach(callback => callback(delta))
   }
 
   /**
@@ -165,6 +178,14 @@ export class InputManager {
   }
 
   /**
+   * Register callback for wheel events (zoom)
+   * @param {Function} callback - Receives zoom delta
+   */
+  onWheel(callback) {
+    this.wheelCallbacks.push(callback)
+  }
+
+  /**
    * Clean up event listeners
    */
   destroy() {
@@ -176,6 +197,7 @@ export class InputManager {
       this.canvas.removeEventListener('mousedown', this._handleMouseDown)
       this.canvas.removeEventListener('mouseup', this._handleMouseUp)
       this.canvas.removeEventListener('click', this._handleClick)
+      this.canvas.removeEventListener('wheel', this._handleWheel)
       this.canvas.removeEventListener('touchstart', this._handleMouseDown)
       this.canvas.removeEventListener('touchend', this._handleMouseUp)
       this.canvas.removeEventListener('touchmove', this._handleMouseMove)
@@ -185,5 +207,6 @@ export class InputManager {
     this.keyDownCallbacks = []
     this.keyUpCallbacks = []
     this.clickCallbacks = []
+    this.wheelCallbacks = []
   }
 }

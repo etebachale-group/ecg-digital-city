@@ -1,5 +1,7 @@
 import * as PIXI from 'pixi.js'
 import { Avatar2D } from '../entities/Avatar2D'
+import { DistrictRenderer2D } from '../entities/DistrictRenderer2D'
+import { CollisionSystem2D } from '../systems/CollisionSystem2D'
 
 /**
  * SceneManager - Manages the game scene, districts, and all visual elements
@@ -16,6 +18,9 @@ export class SceneManager {
     this.worldContainer = new PIXI.Container()
     this.uiContainer = new PIXI.Container()
     
+    // Enable sorting
+    this.worldContainer.sortableChildren = true
+    
     // Add containers to stage
     this.stage.addChild(this.worldContainer)
     this.stage.addChild(this.uiContainer)
@@ -27,14 +32,34 @@ export class SceneManager {
     // Systems (will be set externally)
     this.cameraSystem = null
     this.inputManager = null
+    
+    // District renderer
+    this.districtRenderer = null
+    
+    // Collision system
+    this.collisionSystem = new CollisionSystem2D({
+      worldBounds: {
+        minX: -90,
+        maxX: 90,
+        minY: -90,
+        maxY: 90
+      }
+    })
   }
 
   /**
    * Initialize the scene with district data
    */
   async init() {
-    // Create simple ground
-    this._createGround()
+    // Create district renderer
+    this.districtRenderer = new DistrictRenderer2D({
+      districtData: this.districtData,
+      container: this.worldContainer,
+      collisionSystem: this.collisionSystem
+    })
+    
+    // Load district
+    await this.districtRenderer.load()
     
     // Create player avatar
     this._createPlayerAvatar()
@@ -43,13 +68,10 @@ export class SceneManager {
   /**
    * Create simple ground plane
    * @private
+   * @deprecated - Now handled by DistrictRenderer2D
    */
   _createGround() {
-    const ground = new PIXI.Graphics()
-    ground.beginFill(0x90EE90) // Light green
-    ground.drawRect(-100, -100, 200, 200)
-    ground.endFill()
-    this.worldContainer.addChild(ground)
+    // This is now handled by DistrictRenderer2D
   }
 
   /**
@@ -158,23 +180,52 @@ export class SceneManager {
    * @param {Object} districtData 
    */
   async loadDistrict(districtData) {
+    console.log('🔄 Loading new district:', districtData?.name)
+    
     // Clear current district
-    this.worldContainer.removeChildren()
+    if (this.districtRenderer) {
+      this.districtRenderer.destroy()
+    }
+    
+    // Clear collision system
+    this.collisionSystem.clear()
+    
+    // Clear avatars except player
+    this.avatars.forEach((avatar, id) => {
+      if (avatar !== this.playerAvatar) {
+        this.worldContainer.removeChild(avatar)
+        avatar.destroy()
+        this.avatars.delete(id)
+      }
+    })
     
     // Load new district
     this.districtData = districtData
-    this._createGround()
+    this.districtRenderer = new DistrictRenderer2D({
+      districtData,
+      container: this.worldContainer,
+      collisionSystem: this.collisionSystem
+    })
     
-    // Re-add player avatar
+    await this.districtRenderer.load()
+    
+    // Re-add player avatar to ensure it's on top
     if (this.playerAvatar) {
+      this.worldContainer.removeChild(this.playerAvatar)
       this.worldContainer.addChild(this.playerAvatar)
     }
+    
+    console.log('✅ District loaded successfully')
   }
 
   /**
    * Clean up resources
    */
   destroy() {
+    if (this.districtRenderer) {
+      this.districtRenderer.destroy()
+    }
+    
     this.avatars.forEach(avatar => avatar.destroy())
     this.avatars.clear()
     

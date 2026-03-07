@@ -150,6 +150,13 @@ function App2D() {
     inputManagerRef.current = inputManager
     sceneManager.inputManager = inputManager
     
+    // Setup zoom controls
+    inputManager.onWheel((delta) => {
+      const currentZoom = cameraSystem.zoom
+      const newZoom = currentZoom + delta
+      cameraSystem.setZoom(newZoom)
+    })
+    
     // Initialize NetworkSync
     const networkSync = new NetworkSync({
       sceneManager,
@@ -181,20 +188,58 @@ function App2D() {
           const speed = isRunning ? RUN_SPEED : WALK_SPEED
           
           const velocity = Vector2D.multiply(movementVector, speed * deltaTime)
-          const newPosition = Vector2D.add(
-            new Vector2D(playerAvatarRef.current.position.x, playerAvatarRef.current.position.y),
-            velocity
+          const currentPos = new Vector2D(
+            playerAvatarRef.current.position.x,
+            playerAvatarRef.current.position.y
           )
+          const newPosition = Vector2D.add(currentPos, velocity)
           
-          // Simple bounds checking (collision will be added later)
-          newPosition.x = Math.max(WORLD_BOUNDS.minX, Math.min(WORLD_BOUNDS.maxX, newPosition.x))
-          newPosition.y = Math.max(WORLD_BOUNDS.minY, Math.min(WORLD_BOUNDS.maxY, newPosition.y))
+          // Check collision with avatar radius
+          const avatarRadius = 8 // Avatar collision radius
+          const collisionSystem = sceneManager.collisionSystem
           
-          playerAvatarRef.current.moveTo(newPosition)
+          if (collisionSystem) {
+            // Check if new position collides
+            if (!collisionSystem.checkCollision(newPosition, avatarRadius)) {
+              // No collision, move freely
+              playerAvatarRef.current.moveTo(newPosition)
+            } else {
+              // Collision detected, try to slide
+              const resolvedPosition = collisionSystem.resolveCollision(
+                newPosition,
+                velocity,
+                avatarRadius
+              )
+              playerAvatarRef.current.moveTo(resolvedPosition)
+            }
+          } else {
+            // Fallback: simple bounds checking
+            newPosition.x = Math.max(WORLD_BOUNDS.minX, Math.min(WORLD_BOUNDS.maxX, newPosition.x))
+            newPosition.y = Math.max(WORLD_BOUNDS.minY, Math.min(WORLD_BOUNDS.maxY, newPosition.y))
+            playerAvatarRef.current.moveTo(newPosition)
+          }
+          
           playerAvatarRef.current.setVelocity(velocity)
           playerAvatarRef.current.isRunning = isRunning
         } else {
           playerAvatarRef.current.setVelocity(new Vector2D(0, 0))
+        }
+        
+        // Check for nearby doors (E key to interact)
+        if (inputManager.isKeyPressed('e') && sceneManager.collisionSystem) {
+          const playerPos = new Vector2D(
+            playerAvatarRef.current.position.x,
+            playerAvatarRef.current.position.y
+          )
+          const nearbyDoor = sceneManager.collisionSystem.getNearbyDoor(playerPos, 15)
+          
+          if (nearbyDoor) {
+            sceneManager.collisionSystem.toggleDoor(nearbyDoor.id)
+            useGameStore.getState().showToast(
+              nearbyDoor.isOpen ? '🚪 Puerta abierta' : '🚪 Puerta cerrada',
+              'info'
+            )
+          }
         }
       }
       

@@ -6,45 +6,29 @@ const initialDistricts = [
     name: 'Distrito Central',
     slug: 'central',
     description: 'Centro de la ciudad con ECG Headquarters, Academy e Incubadora de startups',
-    position: { x: 0, y: 0, z: 0 },
-    size: { width: 100, height: 100, depth: 100 },
-    maxOffices: 10,
-    theme: 'modern',
-    isActive: true,
-    isPublic: true
+    maxCapacity: 100,
+    isActive: true
   },
   {
     name: 'Distrito Empresarial',
     slug: 'empresarial',
     description: 'Zona de oficinas privadas para empresas y organizaciones',
-    position: { x: 150, y: 0, z: 0 },
-    size: { width: 200, height: 100, depth: 200 },
-    maxOffices: 50,
-    theme: 'corporate',
-    isActive: true,
-    isPublic: true
+    maxCapacity: 200,
+    isActive: true
   },
   {
     name: 'Distrito Cultural',
     slug: 'cultural',
     description: 'Galería de arte, museo, teatro y espacios culturales',
-    position: { x: 0, y: 0, z: 150 },
-    size: { width: 150, height: 100, depth: 150 },
-    maxOffices: 15,
-    theme: 'artistic',
-    isActive: true,
-    isPublic: true
+    maxCapacity: 150,
+    isActive: true
   },
   {
-    name: 'Plaza Social',
+    name: 'Zona Social',
     slug: 'social',
     description: 'Zona de networking, cafetería virtual y espacios de coworking',
-    position: { x: -150, y: 0, z: 0 },
-    size: { width: 150, height: 100, depth: 150 },
-    maxOffices: 20,
-    theme: 'casual',
-    isActive: true,
-    isPublic: true
+    maxCapacity: 150,
+    isActive: true
   }
 ];
 

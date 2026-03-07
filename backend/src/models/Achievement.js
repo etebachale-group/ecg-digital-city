@@ -25,15 +25,15 @@ const Achievement = sequelize.define('Achievement', {
     defaultValue: 50,
     field: 'xp_reward'
   },
-  conditionType: {
+  requirementType: {
     type: DataTypes.STRING(50),
     allowNull: false,
-    field: 'condition_type'
+    field: 'requirement_type'
   },
-  conditionValue: {
+  requirementValue: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    field: 'condition_value'
+    field: 'requirement_value'
   },
   isActive: {
     type: DataTypes.BOOLEAN,

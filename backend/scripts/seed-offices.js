@@ -57,7 +57,7 @@ async function seedOffices() {
       name: 'ETEBA CHALE GROUP - Sede Central',
       description: 'Oficina principal del grupo. Centro de operaciones, innovación y desarrollo tecnológico.',
       position: { x: 0, y: 0, z: 0 }, // Centro del distrito
-      size: { width: 30, height: 5, depth: 30 }, // Edificio grande
+      size: { width: 60, height: 10, depth: 60 }, // Edificio MUY grande
       isPublic: true,
       maxCapacity: 50,
       theme: 'corporate',
@@ -73,8 +73,8 @@ async function seedOffices() {
         districtId: techDistrict.id,
         name: 'ETEBA Innovation Lab',
         description: 'Laboratorio de innovación y desarrollo de nuevas tecnologías.',
-        position: { x: 20, y: 0, z: 15 },
-        size: { width: 20, height: 4, depth: 20 },
+        position: { x: 40, y: 0, z: 30 },
+        size: { width: 40, height: 8, depth: 40 }, // Más grande
         isPublic: true,
         maxCapacity: 30,
         theme: 'tech',
@@ -107,8 +107,8 @@ async function seedOffices() {
         districtId: techDistrict.id,
         name: 'TechStart HQ',
         description: 'Oficina principal de TechStart Solutions.',
-        position: { x: -25, y: 0, z: 20 },
-        size: { width: 15, height: 3, depth: 15 },
+        position: { x: -50, y: 0, z: 40 },
+        size: { width: 30, height: 6, depth: 30 }, // Más grande
         isPublic: true,
         maxCapacity: 20,
         theme: 'modern',

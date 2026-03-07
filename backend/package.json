@@ -12,7 +12,9 @@
     "seed:all": "node scripts/seed-all.js",
     "seed:districts": "node src/utils/seedDistricts.js",
     "seed:gamification": "node src/utils/seedGamification.js",
-    "seed:offices": "node scripts/seed-offices.js"
+    "seed:offices": "node scripts/seed-offices.js",
+    "fix:production": "node scripts/fix-production.js",
+    "diagnose": "node scripts/fix-production.js diagnose"
   },
   "keywords": [
     "virtual-office",

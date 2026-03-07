@@ -1,28 +1,96 @@
 # Estado del Despliegue - 7 de Marzo 2026
 
-## 🔄 Situación Actual
+## 🔄 Situación Actual - ACTUALIZACIÓN
 
-### Frontend - WebGL Context Loss
-**Estado**: Esperando que el nuevo despliegue se complete
+### ✅ Frontend - Despliegue Completado
+El nuevo código está desplegado (assets: `pixi-vendor-60h-YFiw.js`). Los fixes de WebGL están activos.
 
-Los errores que ves en la consola:
+### ❌ Backend - Necesita Seed de Datos
+
+**Errores actuales:**
 ```
-WebGL context was lost.
-Uncaught TypeError: can't access property "position", this.transform is null
+GET  /api/missions/user/2          → 500 (BD vacía)
+POST /api/missions/assign-daily    → 500 (BD vacía)
+GET  /api/offices/district/5       → 500 (BD vacía)
 ```
 
-Son del **código viejo** (assets: `index-mVEo5SlR.js`, `pixi-vendor-JjMrj3rV.js`).
+**Causa**: La base de datos de producción está vacía. Necesita ejecutar los seeds.
 
-**Acciones tomadas:**
-1. ✅ Syntax error corregido en `App2D.jsx` (faltaba un closing brace)
-2. ✅ Commit y push realizados
-3. ⏳ Esperando que Render complete el nuevo build
+---
 
-**Qué hacer:**
-1. Espera 5-10 minutos a que Render termine el despliegue
-2. Verifica en https://dashboard.render.com que el deploy esté completo
-3. Haz **hard refresh** en el navegador (Ctrl+Shift+R o Cmd+Shift+R) para limpiar caché
-4. Los nombres de los assets deberían cambiar (ej: `index-XXXXX.js` con hash diferente)
+## 🚀 SOLUCIÓN RÁPIDA (Producción en Render)
+
+### Opción 1: Script Automático (Recomendado)
+
+1. Ve a Render Dashboard → Tu servicio backend
+2. Abre la pestaña "Shell"
+3. Ejecuta:
+
+```bash
+cd backend
+npm run fix:production
+```
+
+Este script:
+- ✅ Diagnostica qué falta en la BD
+- ✅ Ejecuta los seeds necesarios automáticamente
+- ✅ Verifica que todo esté correcto
+
+### Opción 2: Seeds Manuales
+
+Si prefieres control manual:
+
+```bash
+cd backend
+
+# 1. Diagnóstico
+npm run diagnose
+
+# 2. Ejecutar seeds
+npm run seed:all
+
+# O uno por uno:
+npm run seed:districts
+npm run seed:gamification
+npm run seed:offices
+```
+
+---
+
+## 📋 Verificación Post-Fix
+
+### 1. Verificar que los seeds funcionaron
+
+En la Shell de Render:
+
+```bash
+# Contar registros
+node -e "
+const { District, Mission, Office } = require('./src/models');
+(async () => {
+  console.log('Distritos:', await District.count());
+  console.log('Misiones:', await Mission.count());
+  console.log('Oficinas:', await Office.count());
+  process.exit(0);
+})();
+"
+```
+
+Deberías ver:
+- Distritos: 5+
+- Misiones: 10+
+- Oficinas: 10+
+
+### 2. Verificar en la aplicación
+
+1. Abre https://ecg-digital-city.onrender.com
+2. Haz hard refresh (Ctrl+Shift+R)
+3. Inicia sesión
+4. Verifica que:
+   - ✅ No hay errores 500 en consola
+   - ✅ Los edificios aparecen en el mapa
+   - ✅ El panel de misiones funciona
+   - ✅ WebGL no crashea
 
 ---
 

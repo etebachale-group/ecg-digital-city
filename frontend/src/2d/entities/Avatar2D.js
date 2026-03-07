@@ -75,8 +75,15 @@ export class Avatar2D extends PIXI.Container {
   _createFallbackSprite() {
     this.sprite = new PIXI.Graphics()
     this.sprite.beginFill(this.isPlayer ? 0x3498db : 0xe74c3c)
-    this.sprite.drawRect(-16, -24, 32, 48)
+    // Aumentar tamaño del avatar: 64x96 (más grande y visible)
+    this.sprite.drawRect(-32, -48, 64, 96)
     this.sprite.endFill()
+    
+    // Agregar círculo para la cabeza
+    this.sprite.beginFill(this.isPlayer ? 0xfdbcb4 : 0xf5a89c)
+    this.sprite.drawCircle(0, -32, 20)
+    this.sprite.endFill()
+    
     this.addChild(this.sprite)
   }
 
@@ -87,13 +94,13 @@ export class Avatar2D extends PIXI.Container {
   _createNameLabel() {
     this.nameLabel = new PIXI.Text(this.username, {
       fontFamily: 'Arial',
-      fontSize: 12,
+      fontSize: 16, // Aumentar tamaño de fuente
       fill: 0xffffff,
       stroke: 0x000000,
-      strokeThickness: 2
+      strokeThickness: 3
     })
     this.nameLabel.anchor.set(0.5, 1)
-    this.nameLabel.position.set(0, -30)
+    this.nameLabel.position.set(0, -60) // Ajustar posición para avatar más grande
     this.addChild(this.nameLabel)
   }
 

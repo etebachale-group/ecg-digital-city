@@ -13,16 +13,16 @@ export class CameraSystem2D {
       minY: -100,
       maxY: 100
     }
-    this.smoothing = config.smoothing || 0.1
+    this.smoothing = config.smoothing || 0.15 // Aumentar suavidad
     
     // Camera state
     this.position = new Vector2D(0, 0)
     this.target = null
-    this.zoom = 1.0
+    this.zoom = 2.5 // Zoom inicial más cercano (era 1.0)
     
     // Zoom constraints
-    this.minZoom = 0.5
-    this.maxZoom = 2.0
+    this.minZoom = 1.5 // Mínimo más cercano (era 0.5)
+    this.maxZoom = 4.0 // Máximo más cercano (era 2.0)
   }
 
   /**
@@ -52,7 +52,7 @@ export class CameraSystem2D {
       this.target.position.y
     )
     
-    // Smooth interpolation
+    // Smooth interpolation - más rápido para mejor seguimiento
     const smoothFactor = Math.min(1, this.smoothing * delta * 60)
     this.position.x += (targetPos.x - this.position.x) * smoothFactor
     this.position.y += (targetPos.y - this.position.y) * smoothFactor

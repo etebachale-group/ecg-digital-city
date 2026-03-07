@@ -1,95 +1,147 @@
-const { sequelize } = require('../src/config/database')
-const logger = require('../src/utils/logger')
+/**
+ * Script de Diagnóstico y Fix para Producción
+ * Verifica el estado de la BD y ejecuta seeds si es necesario
+ */
 
-async function fixProduction() {
+const { sequelize } = require('../src/config/database')
+const { District, Mission, Company, Office, User } = require('../src/models')
+const { seedDistricts } = require('../src/utils/seedDistricts')
+const { seedGamification } = require('../src/utils/seedGamification')
+const { seedOffices } = require('./seed-offices')
+
+async function diagnose() {
+  console.log('🔍 Diagnosticando estado de la base de datos...\n')
+  
+  const results = {
+    districts: 0,
+    missions: 0,
+    companies: 0,
+    offices: 0,
+    users: 0
+  }
+  
   try {
-    logger.info('🔧 Iniciando fix de producción...')
-    
-    // 1. Verificar conexión
-    logger.info('📡 Verificando conexión a base de datos...')
+    // Verificar conexión
     await sequelize.authenticate()
-    logger.info('✅ Conexión a BD exitosa')
+    console.log('✅ Conexión a BD exitosa\n')
     
-    // 2. Verificar tablas existentes
-    logger.info('📋 Verificando tablas...')
-    const [tables] = await sequelize.query(`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public' 
-      ORDER BY table_name
-    `)
-    logger.info(`✅ Encontradas ${tables.length} tablas`)
+    // Contar registros
+    results.districts = await District.count()
+    results.missions = await Mission.count()
+    results.companies = await Company.count()
+    results.offices = await Office.count()
+    results.users = await User.count()
     
-    if (tables.length === 0) {
-      logger.warn('⚠️  No hay tablas. Ejecutando sincronización...')
-      await sequelize.sync({ alter: false, force: false })
-      logger.info('✅ Tablas creadas')
-    }
+    console.log('📊 Estado actual:')
+    console.log(`   - Distritos: ${results.districts}`)
+    console.log(`   - Misiones: ${results.missions}`)
+    console.log(`   - Empresas: ${results.companies}`)
+    console.log(`   - Oficinas: ${results.offices}`)
+    console.log(`   - Usuarios: ${results.users}`)
+    console.log()
     
-    // 3. Verificar y seed distritos
-    logger.info('🗺️  Verificando distritos...')
-    const District = require('../src/models/District')
-    const districtCount = await District.count()
-    
-    if (districtCount === 0) {
-      logger.info('📝 Seeding distritos...')
-      const { seedDistricts } = require('../src/utils/seedDistricts')
-      await seedDistricts()
-      logger.info('✅ Distritos seeded')
-    } else {
-      logger.info(`✅ Ya existen ${districtCount} distritos`)
-    }
-    
-    // 4. Verificar y seed gamificación
-    logger.info('🎮 Verificando gamificación...')
-    const Achievement = require('../src/models/Achievement')
-    const achievementCount = await Achievement.count()
-    
-    if (achievementCount === 0) {
-      logger.info('📝 Seeding gamificación...')
-      const { seedGamification } = require('../src/utils/seedGamification')
-      await seedGamification()
-      logger.info('✅ Gamificación seeded')
-    } else {
-      logger.info(`✅ Ya existen ${achievementCount} logros`)
-    }
-    
-    // 5. Verificar datos críticos
-    logger.info('🔍 Verificando datos críticos...')
-    
-    const User = require('../src/models/User')
-    const userCount = await User.count()
-    logger.info(`👥 Usuarios: ${userCount}`)
-    
-    const Mission = require('../src/models/Mission')
-    const missionCount = await Mission.count()
-    logger.info(`🎯 Misiones: ${missionCount}`)
-    
-    const Company = require('../src/models/Company')
-    const companyCount = await Company.count()
-    logger.info(`🏢 Empresas: ${companyCount}`)
-    
-    // 6. Resumen final
-    logger.info('\n' + '='.repeat(50))
-    logger.info('🎉 Fix completado exitosamente')
-    logger.info('='.repeat(50))
-    logger.info(`📊 Resumen:`)
-    logger.info(`   - Tablas: ${tables.length}`)
-    logger.info(`   - Distritos: ${districtCount || 4}`)
-    logger.info(`   - Logros: ${achievementCount || 8}`)
-    logger.info(`   - Misiones: ${missionCount}`)
-    logger.info(`   - Usuarios: ${userCount}`)
-    logger.info(`   - Empresas: ${companyCount}`)
-    logger.info('='.repeat(50))
-    
-    await sequelize.close()
-    process.exit(0)
+    return results
   } catch (error) {
-    logger.error('❌ Error en fix:', error)
-    logger.error('Stack:', error.stack)
-    process.exit(1)
+    console.error('❌ Error al diagnosticar:', error.message)
+    throw error
+  }
+}
+
+async function fix() {
+  console.log('🔧 Iniciando proceso de fix...\n')
+  
+  try {
+    const state = await diagnose()
+    
+    let needsFix = false
+    
+    // Verificar qué necesita fix
+    if (state.districts === 0) {
+      console.log('⚠️  No hay distritos - ejecutando seed...')
+      await seedDistricts()
+      console.log('✅ Distritos creados\n')
+      needsFix = true
+    }
+    
+    if (state.missions === 0) {
+      console.log('⚠️  No hay misiones - ejecutando seed...')
+      await seedGamification()
+      console.log('✅ Gamificación creada\n')
+      needsFix = true
+    }
+    
+    if (state.companies === 0 || state.offices === 0) {
+      console.log('⚠️  No hay oficinas - ejecutando seed...')
+      
+      // Verificar que hay distritos primero
+      const districtCount = await District.count()
+      if (districtCount === 0) {
+        console.log('⚠️  Creando distritos primero...')
+        await seedDistricts()
+      }
+      
+      await seedOffices()
+      console.log('✅ Oficinas creadas\n')
+      needsFix = true
+    }
+    
+    if (!needsFix) {
+      console.log('✅ La base de datos está completa, no se necesitan fixes\n')
+    }
+    
+    // Diagnóstico final
+    console.log('📊 Estado final:')
+    const finalState = await diagnose()
+    
+    console.log('\n' + '='.repeat(60))
+    console.log('✅ FIX COMPLETADO')
+    console.log('='.repeat(60))
+    
+    if (finalState.districts > 0 && finalState.missions > 0 && finalState.offices > 0) {
+      console.log('\n🎉 La base de datos está lista!')
+      console.log('\nPróximos pasos:')
+      console.log('   1. Reinicia el servidor backend')
+      console.log('   2. Recarga la aplicación frontend')
+      console.log('   3. Los errores 500 deberían desaparecer\n')
+    } else {
+      console.log('\n⚠️  Algunos datos aún faltan. Revisa los logs arriba.\n')
+    }
+    
+  } catch (error) {
+    console.error('\n❌ Error durante el fix:', error)
+    console.error('\nDetalles del error:')
+    console.error(error.stack)
+    throw error
   }
 }
 
 // Ejecutar
-fixProduction()
+if (require.main === module) {
+  const command = process.argv[2]
+  
+  if (command === 'diagnose') {
+    // Solo diagnóstico
+    diagnose()
+      .then(() => {
+        console.log('✅ Diagnóstico completado')
+        process.exit(0)
+      })
+      .catch((error) => {
+        console.error('❌ Error:', error.message)
+        process.exit(1)
+      })
+  } else {
+    // Fix completo (default)
+    fix()
+      .then(() => {
+        console.log('✅ Proceso completado')
+        process.exit(0)
+      })
+      .catch((error) => {
+        console.error('❌ Error:', error.message)
+        process.exit(1)
+      })
+  }
+}
+
+module.exports = { diagnose, fix }

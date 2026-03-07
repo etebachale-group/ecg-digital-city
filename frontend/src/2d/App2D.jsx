@@ -292,7 +292,7 @@ function App2D() {
       
       // Game loop
       app.ticker.add((delta) => {
-      try {
+        try {
         const deltaTime = delta / 60 // Convert to seconds
         
         // Safety check for WebGL context

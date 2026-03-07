@@ -6,6 +6,7 @@ import OfficeObject3D from './OfficeObject3D'
 import RealisticOffice from './RealisticOffice'
 import { Plant, CeilingLight, Desk, Chair, Bookshelf } from './OfficeRoom'
 import { useGameStore } from '../store/gameStore'
+import { collisionSystem } from './CollisionSystem'
 
 function District({ districtData, onPlayerRef }) {
   const players = useGameStore((state) => state.players)
@@ -18,6 +19,53 @@ function District({ districtData, onPlayerRef }) {
       onPlayerRef(playerRef.current)
     }
   }, [playerRef.current, onPlayerRef])
+  
+  // Setup collision boxes for buildings when district loads
+  useEffect(() => {
+    // Clear previous collision data
+    collisionSystem.clear()
+    
+    // Add collision boxes based on district
+    if (districtData.slug === 'central') {
+      // ECG Headquarters
+      collisionSystem.addWall({ x: 0, y: 0, z: 0 }, { width: 20, height: 8, depth: 15 })
+      collisionSystem.addDoor('hq-door', { x: 0, y: 0, z: 7.5 }, { width: 4, height: 3, depth: 0.2 })
+      
+      // ECG Academy
+      collisionSystem.addWall({ x: -15, y: 0, z: -10 }, { width: 12, height: 6, depth: 10 })
+      collisionSystem.addDoor('academy-door', { x: -15, y: 0, z: -5 }, { width: 3, height: 2.5, depth: 0.2 })
+      
+      // Incubadora
+      collisionSystem.addWall({ x: 15, y: 0, z: -10 }, { width: 12, height: 6, depth: 10 })
+      collisionSystem.addDoor('incubadora-door', { x: 15, y: 0, z: -5 }, { width: 3, height: 2.5, depth: 0.2 })
+    } else if (districtData.slug === 'empresarial') {
+      // Edificio de ejemplo
+      collisionSystem.addWall({ x: 0, y: 0, z: 0 }, { width: 25, height: 10, depth: 25 })
+      collisionSystem.addDoor('office-demo-door', { x: 0, y: 0, z: 12.5 }, { width: 4, height: 3, depth: 0.2 })
+    } else if (districtData.slug === 'cultural') {
+      // Galería
+      collisionSystem.addWall({ x: -30, y: 0, z: 0 }, { width: 20, height: 8, depth: 15 })
+      collisionSystem.addDoor('gallery-door', { x: -30, y: 0, z: 7.5 }, { width: 3, height: 2.5, depth: 0.2 })
+      
+      // Teatro
+      collisionSystem.addWall({ x: 30, y: 0, z: 0 }, { width: 25, height: 10, depth: 20 })
+      collisionSystem.addDoor('theater-door', { x: 30, y: 0, z: 10 }, { width: 4, height: 3, depth: 0.2 })
+      
+      // Museo
+      collisionSystem.addWall({ x: 0, y: 0, z: -30 }, { width: 30, height: 12, depth: 20 })
+      collisionSystem.addDoor('museum-door', { x: 0, y: 0, z: -20 }, { width: 4, height: 3, depth: 0.2 })
+    } else if (districtData.slug === 'social') {
+      // Cafetería
+      collisionSystem.addWall({ x: -40, y: 0, z: 0 }, { width: 15, height: 6, depth: 12 })
+      collisionSystem.addDoor('cafe-door', { x: -40, y: 0, z: 6 }, { width: 3, height: 2.5, depth: 0.2 })
+      
+      // Coworking
+      collisionSystem.addWall({ x: 40, y: 0, z: 0 }, { width: 20, height: 5, depth: 15 })
+      collisionSystem.addDoor('coworking-door', { x: 40, y: 0, z: 7.5 }, { width: 4, height: 3, depth: 0.2 })
+    }
+    
+    console.log(`✅ Collision boxes and doors loaded for ${districtData.slug}`)
+  }, [districtData.slug])
 
   // Solo renderizar si estamos en este distrito
   if (currentDistrict !== districtData.slug) {

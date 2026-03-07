@@ -121,8 +121,7 @@ function ThirdPersonCamera({ target, offset = [0, 5, 10], lookAtOffset = [0, 1, 
 
     // Detectar si el jugador se está moviendo (para body cam)
     const currentPos = new Vector3(target.position.x, target.position.y, target.position.z)
-    const lastPos = currentPosition.current
-    const movementSpeed = currentPos.distanceTo(lastPos) / delta
+    const movementSpeed = isPlayerMoving.current ? playerSpeed.current : 0
     isPlayerMoving.current = movementSpeed > 0.1
     playerSpeed.current = movementSpeed
 
@@ -148,7 +147,6 @@ function ThirdPersonCamera({ target, offset = [0, 5, 10], lookAtOffset = [0, 1, 
         const headTilt = isPlayerMoving.current ? Math.sin(bodyCamTime.current) * 0.03 : 0
         
         // Posición de la cámara en los ojos con balanceo
-        // CORREGIDO: Usar la rotación del jugador directamente
         idealOffset = new Vector3(
           bodyCamBob.current.x,
           1.8 + bodyCamBob.current.y + breathingEffect, // Altura de los ojos con balanceo
@@ -156,7 +154,6 @@ function ThirdPersonCamera({ target, offset = [0, 5, 10], lookAtOffset = [0, 1, 
         )
         
         // Mirar hacia adelante del personaje con efecto de balanceo
-        // CORREGIDO: Calcular la dirección hacia adelante correctamente
         const forwardX = Math.sin(playerRotation + cameraAngle.horizontal)
         const forwardZ = Math.cos(playerRotation + cameraAngle.horizontal)
         
@@ -203,9 +200,12 @@ function ThirdPersonCamera({ target, offset = [0, 5, 10], lookAtOffset = [0, 1, 
     idealPosition.copy(target.position)
     idealPosition.add(idealOffset)
 
-    // Suavizar movimiento de cámara (lerp)
+    // Suavizar movimiento de cámara (lerp) - MEJORADO para mejor seguimiento
     // En primera persona, más rápido para seguir el movimiento del cuerpo
-    const lerpFactor = cameraMode === 'first-person' ? 0.3 : cameraMode === '2d-side' ? 0.15 : 0.1
+    const lerpFactor = cameraMode === 'first-person' ? 0.3 : 
+                       cameraMode === '2d-side' ? 0.15 : 
+                       cameraMode === 'third-person' ? 0.15 : 0.1
+    
     currentPosition.current.lerp(idealPosition, lerpFactor)
     camera.position.copy(currentPosition.current)
 
@@ -220,9 +220,9 @@ function ThirdPersonCamera({ target, offset = [0, 5, 10], lookAtOffset = [0, 1, 
       lookAtPosition.y += lookAtHeight
     }
 
-    // Suavizar rotación de cámara
+    // Suavizar rotación de cámara - MEJORADO
     // En primera persona, más rápido para el efecto body cam
-    const lookLerpFactor = cameraMode === 'first-person' ? 0.3 : 0.15
+    const lookLerpFactor = cameraMode === 'first-person' ? 0.3 : 0.2
     currentLookAt.current.lerp(lookAtPosition, lookLerpFactor)
     camera.lookAt(currentLookAt.current)
     

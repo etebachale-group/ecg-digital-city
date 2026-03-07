@@ -41,10 +41,12 @@ export function setupWebGLContextLossHandler(app, onRestore) {
   if (!app || !app.view) return
   
   const canvas = app.view
+  let contextLost = false
   
   // Handle context loss
   canvas.addEventListener('webglcontextlost', (event) => {
     event.preventDefault()
+    contextLost = true
     console.warn('⚠️ WebGL context lost')
     
     // Pause game loop
@@ -61,6 +63,7 @@ export function setupWebGLContextLossHandler(app, onRestore) {
   // Handle context restore
   canvas.addEventListener('webglcontextrestored', () => {
     console.log('✅ WebGL context restored')
+    contextLost = false
     
     // Resume game loop
     if (app.ticker) {
@@ -69,7 +72,11 @@ export function setupWebGLContextLossHandler(app, onRestore) {
     
     // Reload textures and rebuild scene
     if (onRestore) {
-      onRestore()
+      try {
+        onRestore()
+      } catch (error) {
+        console.error('Error restoring scene:', error)
+      }
     }
     
     // Show notification
@@ -77,6 +84,9 @@ export function setupWebGLContextLossHandler(app, onRestore) {
       window.showToast('Graphics context restored', 'success')
     }
   })
+  
+  // Return function to check if context is lost
+  return () => contextLost
 }
 
 /**

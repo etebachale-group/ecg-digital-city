@@ -166,28 +166,56 @@ export class SceneManager {
    * @param {number} delta 
    */
   update(delta) {
+    // Safety check for WebGL context loss
+    if (!this.worldContainer || !this.worldContainer.transform) {
+      console.warn('Scene transform lost, skipping update')
+      return
+    }
+    
     // Update all avatars
     this.avatars.forEach(avatar => {
-      avatar.update(delta)
+      try {
+        if (avatar && avatar.transform) {
+          avatar.update(delta)
+        }
+      } catch (error) {
+        console.error('Error updating avatar:', error)
+      }
     })
     
     // Update district renderer (portals animation)
     if (this.districtRenderer) {
-      this.districtRenderer.update(delta)
+      try {
+        this.districtRenderer.update(delta)
+      } catch (error) {
+        console.error('Error updating district renderer:', error)
+      }
     }
     
     // Update interaction hint
     if (this.interactionHint) {
-      this.interactionHint.update(delta)
+      try {
+        this.interactionHint.update(delta)
+      } catch (error) {
+        console.error('Error updating interaction hint:', error)
+      }
     }
     
     // Update connection indicator
     if (this.connectionIndicator) {
-      this.connectionIndicator.update(delta)
+      try {
+        this.connectionIndicator.update(delta)
+      } catch (error) {
+        console.error('Error updating connection indicator:', error)
+      }
     }
     
     // Depth sorting (Y-axis sorting for 2D)
-    this._sortByDepth()
+    try {
+      this._sortByDepth()
+    } catch (error) {
+      console.error('Error sorting depth:', error)
+    }
   }
 
   /**

@@ -102,18 +102,33 @@ export class Avatar2D extends PIXI.Container {
    * @param {number} delta 
    */
   update(delta) {
+    // Safety check for WebGL context loss
+    if (!this.transform || !this.position) {
+      console.warn('Avatar transform lost, skipping update')
+      return
+    }
+    
     // Smooth position interpolation
     const smoothFactor = 0.2
     this.position.x += (this.targetPosition.x - this.position.x) * smoothFactor
     this.position.y += (this.targetPosition.y - this.position.y) * smoothFactor
     
     // Update animation
-    AnimationSystem.updateAvatarAnimation(this, delta)
+    try {
+      AnimationSystem.updateAvatarAnimation(this, delta)
+    } catch (error) {
+      console.error('Error updating animation:', error)
+    }
     
     // Update chat bubble
     if (this.chatBubble) {
-      const shouldRemove = this.chatBubble.update(delta)
-      if (shouldRemove) {
+      try {
+        const shouldRemove = this.chatBubble.update(delta)
+        if (shouldRemove) {
+          this.removeChatBubble()
+        }
+      } catch (error) {
+        console.error('Error updating chat bubble:', error)
         this.removeChatBubble()
       }
     }
@@ -124,6 +139,11 @@ export class Avatar2D extends PIXI.Container {
    * @param {Vector2D} position 
    */
   moveTo(position) {
+    // Safety check for WebGL context loss
+    if (!this.targetPosition) {
+      console.warn('Avatar targetPosition lost, skipping moveTo')
+      return
+    }
     this.targetPosition.set(position.x, position.y)
   }
 

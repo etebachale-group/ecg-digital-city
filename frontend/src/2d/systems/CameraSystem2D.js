@@ -40,6 +40,12 @@ export class CameraSystem2D {
   update(delta) {
     if (!this.target) return
     
+    // Safety check for WebGL context loss
+    if (!this.target.position || !this.position) {
+      console.warn('Camera or target position lost, skipping update')
+      return
+    }
+    
     // Calculate target position
     const targetPos = new Vector2D(
       this.target.position.x,
@@ -113,6 +119,12 @@ export class CameraSystem2D {
    * @param {PIXI.Container} container 
    */
   applyToContainer(container) {
+    // Safety check for WebGL context loss
+    if (!container || !container.position || !container.scale || !container.pivot) {
+      console.warn('Container transform lost, skipping camera apply')
+      return
+    }
+    
     // Center the container
     container.position.x = this.viewport.width / 2
     container.position.y = this.viewport.height / 2

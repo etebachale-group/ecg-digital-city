@@ -160,90 +160,149 @@ function App2D() {
   }, [isAuthenticated, user?.id])
 
   const handlePixiReady = (app) => {
-    console.log('🎮 Pixi.js 2D initialized!')
-    
-    // Setup WebGL context loss handler
-    setupWebGLContextLossHandler(app, () => {
-      console.log('Rebuilding scene after context restore...')
-      // Scene will be rebuilt automatically on next frame
-    })
-    
-    // Get active district
-    const activeDistrict = districts.find(d => d.slug === currentDistrict) || districts[0]
-    
-    // Initialize SceneManager
-    const sceneManager = new SceneManager({
-      app,
-      districtData: activeDistrict,
-      onPlayerRef: (player) => {
-        playerAvatarRef.current = player
-        console.log('👤 Player avatar created')
-        
-        // Initialize NetworkSync after player is created
-        if (networkSyncRef.current) {
-          networkSyncRef.current.setPlayerAvatar(player)
+    try {
+      console.log('🎮 Pixi.js 2D initialized!')
+      
+      // Setup WebGL context loss handler
+      setupWebGLContextLossHandler(app, () => {
+        console.log('Rebuilding scene after context restore...')
+        // Scene will be rebuilt automatically on next frame
+      })
+      
+      // Get active district
+      const activeDistrict = districts.find(d => d.slug === currentDistrict) || districts[0]
+      
+      // Initialize SceneManager
+      const sceneManager = new SceneManager({
+        app,
+        districtData: activeDistrict,
+        onPlayerRef: (player) => {
+          playerAvatarRef.current = player
+          console.log('👤 Player avatar created')
+          
+          // Initialize NetworkSync after player is created
+          if (networkSyncRef.current) {
+            networkSyncRef.current.setPlayerAvatar(player)
+          }
         }
+      })
+      sceneManagerRef.current = sceneManager
+      
+      // Initialize scene
+      sceneManager.init().catch(error => {
+        console.error('Error initializing scene:', error)
+        useGameStore.getState().showToast('Error loading game. Please refresh.', 'error')
+      })
+      
+      // Initialize CameraSystem
+      const cameraSystem = new CameraSystem2D({
+        viewport: { width: app.screen.width, height: app.screen.height },
+        worldBounds: WORLD_BOUNDS,
+        smoothing: 0.1
+      })
+      cameraSystemRef.current = cameraSystem
+      sceneManager.cameraSystem = cameraSystem
+      
+      // Set camera target to player (with delay to ensure player is created)
+      setTimeout(() => {
+        if (playerAvatarRef.current && playerAvatarRef.current.transform) {
+          cameraSystem.setTarget(playerAvatarRef.current)
+        }
+      }, 100)
+      
+      // Initialize InputManager
+      const inputManager = new InputManager({
+        canvas: app.view,
+        camera: cameraSystem
+      })
+      inputManagerRef.current = inputManager
+      sceneManager.inputManager = inputManager
+      
+      // Setup zoom controls
+      inputManager.onWheel((delta) => {
+        try {
+          const currentZoom = cameraSystem.zoom
+          const newZoom = currentZoom + delta
+          cameraSystem.setZoom(newZoom)
+        } catch (error) {
+          console.error('Error handling zoom:', error)
+        }
+      })
+      
+      // Initialize NetworkSync
+      const networkSync = new NetworkSync({
+        sceneManager,
+        playerAvatar: playerAvatarRef.current
+      })
+      networkSyncRef.current = networkSync
+      
+      // Setup Socket.IO event listeners for multiplayer
+      const socket = getSocket()
+      if (socket) {
+        socket.on('world:users', (data) => {
+          try {
+            networkSync.onUsersList(data)
+          } catch (error) {
+            console.error('Error handling users list:', error)
+          }
+        })
+        socket.on('world:user-joined', (data) => {
+          try {
+            networkSync.onPlayerJoined(data)
+          } catch (error) {
+            console.error('Error handling user joined:', error)
+          }
+        })
+        socket.on('world:user-moved', (data) => {
+          try {
+            networkSync.onPlayerMoved(data)
+          } catch (error) {
+            console.error('Error handling user moved:', error)
+          }
+        })
+        socket.on('world:user-left', (data) => {
+          try {
+            networkSync.onPlayerLeft(data)
+          } catch (error) {
+            console.error('Error handling user left:', error)
+          }
+        })
+        socket.on('chat:message', (data) => {
+          try {
+            networkSync.onChatMessage(data)
+          } catch (error) {
+            console.error('Error handling chat message:', error)
+          }
+        })
+        socket.on('disconnect', () => {
+          try {
+            networkSync.onDisconnect()
+          } catch (error) {
+            console.error('Error handling disconnect:', error)
+          }
+        })
+        socket.on('connect', () => {
+          try {
+            networkSync.onReconnect()
+          } catch (error) {
+            console.error('Error handling reconnect:', error)
+          }
+        })
       }
-    })
-    sceneManagerRef.current = sceneManager
-    
-    // Initialize scene
-    sceneManager.init()
-    
-    // Initialize CameraSystem
-    const cameraSystem = new CameraSystem2D({
-      viewport: { width: app.screen.width, height: app.screen.height },
-      worldBounds: WORLD_BOUNDS,
-      smoothing: 0.1
-    })
-    cameraSystemRef.current = cameraSystem
-    sceneManager.cameraSystem = cameraSystem
-    
-    // Set camera target to player
-    if (playerAvatarRef.current) {
-      cameraSystem.setTarget(playerAvatarRef.current)
-    }
-    
-    // Initialize InputManager
-    const inputManager = new InputManager({
-      canvas: app.view,
-      camera: cameraSystem
-    })
-    inputManagerRef.current = inputManager
-    sceneManager.inputManager = inputManager
-    
-    // Setup zoom controls
-    inputManager.onWheel((delta) => {
-      const currentZoom = cameraSystem.zoom
-      const newZoom = currentZoom + delta
-      cameraSystem.setZoom(newZoom)
-    })
-    
-    // Initialize NetworkSync
-    const networkSync = new NetworkSync({
-      sceneManager,
-      playerAvatar: playerAvatarRef.current
-    })
-    networkSyncRef.current = networkSync
-    
-    // Setup Socket.IO event listeners for multiplayer
-    const socket = getSocket()
-    if (socket) {
-      socket.on('world:users', (data) => networkSync.onUsersList(data))
-      socket.on('world:user-joined', (data) => networkSync.onPlayerJoined(data))
-      socket.on('world:user-moved', (data) => networkSync.onPlayerMoved(data))
-      socket.on('world:user-left', (data) => networkSync.onPlayerLeft(data))
-      socket.on('chat:message', (data) => networkSync.onChatMessage(data))
-      socket.on('disconnect', () => networkSync.onDisconnect())
-      socket.on('connect', () => networkSync.onReconnect())
     }
     
     // Game loop
     app.ticker.add((delta) => {
-      const deltaTime = delta / 60 // Convert to seconds
-      
-      // Handle player movement
-      if (playerAvatarRef.current && inputManager) {
+      try {
+        const deltaTime = delta / 60 // Convert to seconds
+        
+        // Safety check for WebGL context
+        if (!sceneManager || !sceneManager.worldContainer || !sceneManager.worldContainer.transform) {
+          return // Skip frame if context is lost
+        }
+        
+        // Handle player movement
+        if (playerAvatarRef.current && playerAvatarRef.current.transform && inputManager) {
         const movementVector = inputManager.getMovementVector()
         
         if (movementVector.length() > 0) {
@@ -354,9 +413,34 @@ function App2D() {
       if (networkSync) {
         networkSync.update(deltaTime)
       }
+      } catch (error) {
+        // Handle WebGL context loss or other errors gracefully
+        if (error.message && error.message.includes('context')) {
+          console.warn('WebGL context error in game loop, skipping frame')
+        } else {
+          console.error('Error in game loop:', error)
+        }
+      }
     })
     
     console.log('✅ 2D Game loop started with multiplayer support!')
+    } catch (error) {
+      console.error('❌ Error initializing 2D game:', error)
+      
+      // Show error to user
+      if (useGameStore.getState().showToast) {
+        useGameStore.getState().showToast(
+          'Error initializing game. Please refresh the page.',
+          'error'
+        )
+      }
+      
+      // Try to recover by reloading after delay
+      setTimeout(() => {
+        console.log('Attempting to reload page...')
+        window.location.reload()
+      }, 3000)
+    }
   }
 
   if (!isAuthenticated) {

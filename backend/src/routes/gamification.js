@@ -44,17 +44,19 @@ router.post('/add-xp', async (req, res) => {
       progress = await UserProgress.create({ userId })
     }
 
-    const oldXp = progress.xp
+    const oldXp = progress.totalXp
     const oldLevel = progress.level
-    progress.xp += xp
+    progress.totalXp += xp
 
     // Calcular nuevo nivel (100 XP por nivel)
-    const newLevel = Math.floor(progress.xp / 100) + 1
+    const newLevel = Math.floor(progress.totalXp / 100) + 1
     const leveledUp = newLevel > oldLevel
 
     if (leveledUp) {
       progress.level = newLevel
     }
+    
+    progress.currentXp = progress.totalXp - ((progress.level - 1) * 100)
 
     await progress.save()
 
@@ -108,22 +110,16 @@ router.post('/daily-login', async (req, res) => {
     if (!progress) {
       progress = await UserProgress.create({ 
         userId,
-        xp: 0,
+        totalXp: 0,
+        currentXp: 0,
         level: 1,
-        totalLogins: 0,
-        totalMessages: 0,
-        totalDistrictsVisited: 0,
-        totalEventsAttended: 0,
         streakDays: 0,
-        lastLogin: null
+        lastDailyLogin: null
       })
     }
 
     const today = new Date().toISOString().split('T')[0]
-    const lastLogin = progress.lastLogin
-
-    // Incrementar total de logins
-    progress.totalLogins = (progress.totalLogins || 0) + 1
+    const lastLogin = progress.lastDailyLogin
 
     // Calcular racha
     if (lastLogin) {
@@ -140,14 +136,15 @@ router.post('/daily-login', async (req, res) => {
       progress.streakDays = 1
     }
 
-    progress.lastLogin = today
+    progress.lastDailyLogin = today
     
     // Dar XP por login
-    progress.xp = (progress.xp || 0) + 10
-    const newLevel = Math.floor(progress.xp / 100) + 1
+    progress.totalXp = (progress.totalXp || 0) + 10
+    const newLevel = Math.floor(progress.totalXp / 100) + 1
     if (newLevel > (progress.level || 1)) {
       progress.level = newLevel
     }
+    progress.currentXp = progress.totalXp - ((progress.level - 1) * 100)
     
     await progress.save()
 
@@ -171,7 +168,7 @@ router.get('/leaderboard', async (req, res) => {
 
     const leaderboard = await UserProgress.findAll({
       include: [{ model: User, as: 'user', attributes: ['id', 'username'] }],
-      order: [['xp', 'DESC']],
+      order: [['total_xp', 'DESC']],
       limit: parseInt(limit),
       offset: parseInt(offset)
     })

@@ -75,6 +75,70 @@ function District({ districtData, onPlayerRef }) {
 **Archivo modificado:**
 - `frontend/src/components/District.jsx` - Agregados valores por defecto
 
+### 3. Error Frontend - RangeError: invalid array length en NavigationMesh
+
+**Problema:** El sistema `NavigationMesh` recibía parámetros inválidos que causaban dimensiones negativas o extremadamente grandes en el grid, resultando en un `RangeError` al intentar crear arrays.
+
+**Error en consola:**
+```
+RangeError: invalid array length
+createGrid https://ecg-digital-city.onrender.com/assets/index-Dq2G2Gvy.js:1
+```
+
+**Causa raíz:**
+- `NavigationMesh` esperaba `{ minX, maxX, minZ, maxZ }` pero recibía `{ min: -45, max: 45 }`
+- No había validación de bounds (ej: `minX >= maxX` causaría dimensiones negativas)
+- No había límites en el tamaño del grid
+
+**Solución aplicada:**
+
+```javascript
+// frontend/src/systems/NavigationMesh.js
+constructor(worldBounds, cellSize = 0.5) {
+  // ✅ Manejar ambos formatos
+  if (worldBounds.min !== undefined && worldBounds.max !== undefined) {
+    this.worldBounds = {
+      minX: worldBounds.min,
+      maxX: worldBounds.max,
+      minZ: worldBounds.min,
+      maxZ: worldBounds.max
+    };
+  } else {
+    this.worldBounds = worldBounds;
+  }
+  
+  // ✅ Asegurar cellSize positivo
+  this.cellSize = Math.max(0.1, cellSize);
+  // ...
+}
+
+createGrid() {
+  const { minX, maxX, minZ, maxZ } = this.worldBounds;
+  
+  // ✅ Validar bounds
+  if (minX >= maxX || minZ >= maxZ) {
+    console.error('Invalid world bounds:', this.worldBounds);
+    this.width = 100;
+    this.height = 100;
+  } else {
+    this.width = Math.ceil((maxX - minX) / this.cellSize);
+    this.height = Math.ceil((maxZ - minZ) / this.cellSize);
+  }
+  
+  // ✅ Limitar dimensiones a valores razonables
+  this.width = Math.max(1, Math.min(this.width, 10000));
+  this.height = Math.max(1, Math.min(this.height, 10000));
+  
+  // Ahora es seguro crear el grid
+  this.grid = Array(this.height).fill(null).map(() => 
+    Array(this.width).fill(true)
+  );
+}
+```
+
+**Archivo modificado:**
+- `frontend/src/systems/NavigationMesh.js` - Agregada validación robusta
+
 ## Estado Actual
 
 ### Backend ✅
@@ -113,13 +177,14 @@ curl https://ecg-digital-city.onrender.com/api/districts
 curl https://ecg-digital-city.onrender.com/api/missions/user/2
 ```
 
-## Commit
+## Commits
 
 ```
+6959cbf - Fix: NavigationMesh invalid array length error
 b9a7c1d - Fix: Mission model schema mismatch and District position error
 ```
 
-**Cambios:**
-- 3 archivos modificados
-- 38 inserciones
-- 59 eliminaciones
+**Total de cambios:**
+- 5 archivos modificados
+- Backend: Mission model y seed corregidos
+- Frontend: District.jsx y NavigationMesh.js con validaciones robustas

@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
 
     const missions = await Mission.findAll({
       where,
-      order: [['difficulty', 'ASC'], ['xpReward', 'ASC']]
+      order: [['xpReward', 'ASC'], ['id', 'ASC']]
     })
 
     res.json(missions)
@@ -111,7 +111,7 @@ router.post('/progress', async (req, res) => {
     userMission.progress = progress
 
     // Verificar si se completó
-    if (progress >= userMission.mission.requirementValue && !userMission.isCompleted) {
+    if (progress >= userMission.mission.targetValue && !userMission.isCompleted) {
       userMission.isCompleted = true
       userMission.completedAt = new Date()
       logger.info(`Usuario ${userId} completó misión ${missionId}`)

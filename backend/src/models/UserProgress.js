@@ -11,52 +11,81 @@ const UserProgress = sequelize.define('UserProgress', {
     type: DataTypes.INTEGER,
     allowNull: false,
     unique: true,
+    field: 'user_id',
     references: {
       model: 'users',
       key: 'id'
     }
   },
-  xp: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0
-  },
   level: {
     type: DataTypes.INTEGER,
     defaultValue: 1
   },
-  totalLogins: {
+  currentXp: {
     type: DataTypes.INTEGER,
-    defaultValue: 0
+    defaultValue: 0,
+    field: 'current_xp'
   },
-  totalMessages: {
+  totalXp: {
     type: DataTypes.INTEGER,
-    defaultValue: 0
-  },
-  totalDistrictsVisited: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0
-  },
-  totalEventsAttended: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0
+    defaultValue: 0,
+    field: 'total_xp'
   },
   streakDays: {
     type: DataTypes.INTEGER,
-    defaultValue: 0
+    defaultValue: 0,
+    field: 'streak_days'
   },
-  lastLogin: {
+  lastDailyLogin: {
     type: DataTypes.DATEONLY,
-    allowNull: true
+    allowNull: true,
+    field: 'last_daily_login'
   },
-  // Campos virtuales para el frontend
-  currentXP: {
+  // Alias for backward compatibility
+  xp: {
     type: DataTypes.VIRTUAL,
     get() {
-      const level = this.getDataValue('level') || 1
-      const totalXP = this.getDataValue('xp') || 0
-      return totalXP - ((level - 1) * 100)
+      return this.getDataValue('totalXp') || 0
+    },
+    set(value) {
+      this.setDataValue('totalXp', value)
     }
   },
+  lastLogin: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return this.getDataValue('lastDailyLogin')
+    },
+    set(value) {
+      this.setDataValue('lastDailyLogin', value)
+    }
+  },
+  // Virtual fields for stats (can be added to DB later if needed)
+  totalLogins: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return 0 // Placeholder
+    }
+  },
+  totalMessages: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return 0 // Placeholder
+    }
+  },
+  totalDistrictsVisited: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return 0 // Placeholder
+    }
+  },
+  totalEventsAttended: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return 0 // Placeholder
+    }
+  },
+  // Frontend helper fields
   xpToNextLevel: {
     type: DataTypes.VIRTUAL,
     get() {
